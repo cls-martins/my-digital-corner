@@ -75,6 +75,7 @@ export type Database = {
           background_image_url: string | null
           background_video_url: string | null
           badges: Json
+          banner_url: string | null
           bio: string
           created_at: string
           display_name: string
@@ -93,6 +94,7 @@ export type Database = {
           background_image_url?: string | null
           background_video_url?: string | null
           badges?: Json
+          banner_url?: string | null
           bio?: string
           created_at?: string
           display_name?: string
@@ -111,6 +113,7 @@ export type Database = {
           background_image_url?: string | null
           background_video_url?: string | null
           badges?: Json
+          banner_url?: string | null
           bio?: string
           created_at?: string
           display_name?: string
