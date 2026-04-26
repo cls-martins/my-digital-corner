@@ -1,14 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { ProfileRow, LinkRow } from "@/lib/types";
 import { BackgroundFX } from "@/components/bio/BackgroundFX";
-import { CursorFX } from "@/components/bio/CursorFX";
 import { ThemeApplier } from "@/components/bio/ThemeApplier";
 import { BioCard } from "@/components/bio/BioCard";
 import { AudioPlayer } from "@/components/bio/AudioPlayer";
 import { CommentsBox } from "@/components/bio/CommentsBox";
-import { Settings } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -60,19 +58,10 @@ function Index() {
         theme={profile.theme}
         imageUrl={profile.background_image_url}
         videoUrl={profile.background_video_url}
+        bigText={profile.handle}
       />
-      <CursorFX variant={profile.theme.cursor} />
 
-      {/* admin link */}
-      <Link
-        to="/admin"
-        className="fixed top-4 right-4 z-50 h-9 w-9 grid place-items-center rounded-full glass hover:scale-110 transition"
-        aria-label="Admin"
-      >
-        <Settings className="h-4 w-4" />
-      </Link>
-
-      <main className="relative z-10 mx-auto max-w-md px-4 py-8 sm:py-12 space-y-4">
+      <main className="relative z-10 mx-auto max-w-md px-4 py-10 sm:py-16 space-y-4">
         <BioCard profile={profile} links={links} />
 
         {profile.audio_url && (
@@ -84,10 +73,6 @@ function Index() {
         )}
 
         <CommentsBox />
-
-        <footer className="pt-4 text-center text-[10px] uppercase tracking-[0.3em] font-mono text-muted-foreground/60">
-          ✦ powered by you ✦
-        </footer>
       </main>
     </div>
   );
