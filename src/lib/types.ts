@@ -5,7 +5,7 @@ export type Theme = {
   background: string;
   font: string;
   cursor: "default" | "glow" | "none" | "ring";
-  effects: string[]; // particles, grid, scanlines, vignette
+  effects: string[]; // particles, grid, scanlines, bigtext
   textAnimation: "none" | "glitch" | "shimmer" | "typewriter";
 };
 
@@ -18,6 +18,7 @@ export type ProfileRow = {
   bio: string;
   avatar_url: string | null;
   avatar_decoration: string | null;
+  banner_url: string | null;
   background_video_url: string | null;
   background_image_url: string | null;
   audio_url: string | null;
