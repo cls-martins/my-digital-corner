@@ -22,7 +22,7 @@ export const updateProfile = createServerFn({ method: "POST" })
     checkPassword(data.password);
     const { data: existing } = await supabaseAdmin.from("profile").select("id").limit(1).single();
     if (!existing) throw new Error("Profile not found");
-    const { error } = await supabaseAdmin.from("profile").update(data.patch).eq("id", existing.id);
+    const { error } = await supabaseAdmin.from("profile").update(data.patch as never).eq("id", existing.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
