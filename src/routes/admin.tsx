@@ -234,9 +234,8 @@ function ProfileTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Part
 function ThemeTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Partial<ProfileRow>) => Promise<void> }) {
   const [theme, setTheme] = useState<Theme>(profile.theme);
   const fonts = ["Space Grotesk", "JetBrains Mono", "Orbitron", "Inter", "Bebas Neue"];
-  const cursors = ["glow", "ring", "default", "none"];
   const anims = ["glitch", "shimmer", "none"];
-  const allFx = ["particles", "grid", "scanlines"];
+  const allFx = ["bigtext", "particles", "grid", "scanlines"];
 
   const toggleFx = (fx: string) => {
     const set = new Set(theme.effects || []);
@@ -275,22 +274,22 @@ function ThemeTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Partia
         </Field>
       </Section>
 
-      <Section title="cursor & efeitos">
-        <Field label="cursor">
-          <select value={theme.cursor} onChange={(e) => setTheme({ ...theme, cursor: e.target.value as Theme["cursor"] })} className={inputCls}>
-            {cursors.map((c) => <option key={c} value={c}>{c}</option>)}
-          </select>
-        </Field>
-        <Field label="efeitos de fundo">
+      <Section title="efeitos de fundo">
+        <Field label="ative os efeitos que quiser">
           <div className="flex flex-wrap gap-2">
-            {allFx.map((fx) => (
-              <button key={fx} onClick={() => toggleFx(fx)}
-                className={`px-3 py-1.5 text-xs rounded-lg border transition ${
-                  theme.effects?.includes(fx)
-                    ? "bg-[var(--neon-primary)]/20 border-[var(--neon-primary)]/50 text-[var(--neon-primary)]"
-                    : "border-white/10 text-muted-foreground hover:text-foreground"
-                }`}>{fx}</button>
-            ))}
+            {allFx.map((fx) => {
+              const active = fx === "bigtext"
+                ? theme.effects?.includes("bigtext") !== false
+                : theme.effects?.includes(fx);
+              return (
+                <button key={fx} onClick={() => toggleFx(fx)}
+                  className={`px-3 py-1.5 text-xs rounded-lg border transition ${
+                    active
+                      ? "bg-[var(--neon-primary)]/20 border-[var(--neon-primary)]/50 text-[var(--neon-primary)]"
+                      : "border-white/10 text-muted-foreground hover:text-foreground"
+                  }`}>{fx}</button>
+              );
+            })}
           </div>
         </Field>
       </Section>
@@ -317,6 +316,22 @@ function MediaTab({ profile, password, onSave }: { profile: ProfileRow; password
           password={password}
           onUploaded={(url) => onSave({ avatar_url: url })}
         />
+      </Section>
+
+      <Section title="banner do card (topo)">
+        <UploadField
+          icon={<Image className="h-3.5 w-3.5" />}
+          label="imagem do banner"
+          accept="image/*"
+          currentUrl={profile.banner_url}
+          password={password}
+          onUploaded={(url) => onSave({ banner_url: url })}
+        />
+        {profile.banner_url && (
+          <button className={btnGhost} onClick={() => onSave({ banner_url: null })}>
+            <Trash2 className="h-3.5 w-3.5" /> remover banner
+          </button>
+        )}
       </Section>
 
       <Section title="áudio de fundo">
