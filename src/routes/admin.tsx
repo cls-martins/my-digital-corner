@@ -172,6 +172,17 @@ function ProfileTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Part
   const [handle, setHandle] = useState(profile.handle);
   const [bio, setBio] = useState(profile.bio);
   const [badges, setBadges] = useState<Badge[]>(profile.badges || []);
+  const [nameStyle, setNameStyle] = useState(profile.name_style || "brackets");
+
+  const NAME_STYLES: { v: string; label: string }[] = [
+    { v: "brackets", label: "[B][R][A][C][K][E][T][S]" },
+    { v: "neon", label: "NEON GLOW" },
+    { v: "glitch", label: "GLITCH RGB" },
+    { v: "mono", label: "mono_lower" },
+    { v: "gradient", label: "GRADIENT" },
+    { v: "outline", label: "OUTLINE" },
+    { v: "minimal", label: "Minimal" },
+  ];
 
   return (
     <div className="space-y-4">
@@ -185,7 +196,24 @@ function ProfileTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Part
         <Field label="bio">
           <textarea rows={4} className={inputCls} value={bio} onChange={(e) => setBio(e.target.value)} />
         </Field>
-        <button className={btnPrimary} onClick={() => onSave({ display_name: name, handle, bio })}>
+        <Field label="estilo do nome">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {NAME_STYLES.map((s) => (
+              <button
+                key={s.v}
+                onClick={() => setNameStyle(s.v as ProfileRow["name_style"])}
+                className={`px-3 py-2 text-xs rounded-lg border transition text-left ${
+                  nameStyle === s.v
+                    ? "bg-[var(--neon-primary)]/20 border-[var(--neon-primary)]/50 text-[var(--neon-primary)]"
+                    : "border-white/10 text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </Field>
+        <button className={btnPrimary} onClick={() => onSave({ display_name: name, handle, bio, name_style: nameStyle })}>
           <Save className="h-3.5 w-3.5" /> salvar identidade
         </button>
       </Section>
