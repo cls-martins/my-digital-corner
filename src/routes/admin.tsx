@@ -172,7 +172,7 @@ function ProfileTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Part
   const [handle, setHandle] = useState(profile.handle);
   const [bio, setBio] = useState(profile.bio);
   const [badges, setBadges] = useState<Badge[]>(profile.badges || []);
-  const [nameStyle, setNameStyle] = useState(profile.name_style || "brackets");
+  const [nameStyle, setNameStyle] = useState<NonNullable<ProfileRow["name_style"]>>(profile.name_style || "brackets");
 
   const NAME_STYLES: { v: string; label: string }[] = [
     { v: "brackets", label: "[B][R][A][C][K][E][T][S]" },
