@@ -27,7 +27,26 @@ export type ProfileRow = {
   badges: Badge[];
   theme: Theme;
   views: number;
+  name_style?: NameStyle;
+  entry_effect?: EntryEffect;
 };
+
+export type NameStyle =
+  | "brackets"   // [C][O][R][U][J][A]
+  | "neon"       // big neon glow
+  | "glitch"     // glitch RGB
+  | "mono"       // monospace lowercase
+  | "gradient"   // gradient fill
+  | "outline"    // outlined letters
+  | "minimal";   // plain bold
+
+export type EntryEffect =
+  | "none"
+  | "fade"
+  | "click"        // requires user click to enter
+  | "typewriter"   // types the handle then reveals
+  | "glitch"       // glitch reveal
+  | "scan";        // scan-line reveal
 
 export type LinkRow = {
   id: string;

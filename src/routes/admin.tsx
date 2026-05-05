@@ -172,6 +172,17 @@ function ProfileTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Part
   const [handle, setHandle] = useState(profile.handle);
   const [bio, setBio] = useState(profile.bio);
   const [badges, setBadges] = useState<Badge[]>(profile.badges || []);
+  const [nameStyle, setNameStyle] = useState<NonNullable<ProfileRow["name_style"]>>(profile.name_style || "brackets");
+
+  const NAME_STYLES: { v: string; label: string }[] = [
+    { v: "brackets", label: "[B][R][A][C][K][E][T][S]" },
+    { v: "neon", label: "NEON GLOW" },
+    { v: "glitch", label: "GLITCH RGB" },
+    { v: "mono", label: "mono_lower" },
+    { v: "gradient", label: "GRADIENT" },
+    { v: "outline", label: "OUTLINE" },
+    { v: "minimal", label: "Minimal" },
+  ];
 
   return (
     <div className="space-y-4">
@@ -185,7 +196,24 @@ function ProfileTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Part
         <Field label="bio">
           <textarea rows={4} className={inputCls} value={bio} onChange={(e) => setBio(e.target.value)} />
         </Field>
-        <button className={btnPrimary} onClick={() => onSave({ display_name: name, handle, bio })}>
+        <Field label="estilo do nome">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {NAME_STYLES.map((s) => (
+              <button
+                key={s.v}
+                onClick={() => setNameStyle(s.v as NonNullable<ProfileRow["name_style"]>)}
+                className={`px-3 py-2 text-xs rounded-lg border transition text-left ${
+                  nameStyle === s.v
+                    ? "bg-[var(--neon-primary)]/20 border-[var(--neon-primary)]/50 text-[var(--neon-primary)]"
+                    : "border-white/10 text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {s.label}
+              </button>
+            ))}
+          </div>
+        </Field>
+        <button className={btnPrimary} onClick={() => onSave({ display_name: name, handle, bio, name_style: nameStyle })}>
           <Save className="h-3.5 w-3.5" /> salvar identidade
         </button>
       </Section>
@@ -233,9 +261,18 @@ function ProfileTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Part
 
 function ThemeTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Partial<ProfileRow>) => Promise<void> }) {
   const [theme, setTheme] = useState<Theme>(profile.theme);
+  const [entryEffect, setEntryEffect] = useState<NonNullable<ProfileRow["entry_effect"]>>(profile.entry_effect || "fade");
   const fonts = ["Space Grotesk", "JetBrains Mono", "Orbitron", "Inter", "Bebas Neue"];
   const anims = ["glitch", "shimmer", "none"];
   const allFx = ["bigtext", "particles", "grid", "scanlines"];
+  const entries: { v: NonNullable<ProfileRow["entry_effect"]>; label: string }[] = [
+    { v: "none", label: "nenhum" },
+    { v: "fade", label: "fade (rápido)" },
+    { v: "click", label: "click to enter" },
+    { v: "typewriter", label: "typewriter" },
+    { v: "glitch", label: "glitch reveal" },
+    { v: "scan", label: "scan line" },
+  ];
 
   const toggleFx = (fx: string) => {
     const set = new Set(theme.effects || []);
@@ -274,6 +311,26 @@ function ThemeTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Partia
         </Field>
       </Section>
 
+      <Section title="efeito de entrada">
+        <Field label="o que aparece quando alguém abre a página">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            {entries.map((e) => (
+              <button
+                key={e.v}
+                onClick={() => setEntryEffect(e.v)}
+                className={`px-3 py-2 text-xs rounded-lg border transition text-left ${
+                  entryEffect === e.v
+                    ? "bg-[var(--neon-primary)]/20 border-[var(--neon-primary)]/50 text-[var(--neon-primary)]"
+                    : "border-white/10 text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {e.label}
+              </button>
+            ))}
+          </div>
+        </Field>
+      </Section>
+
       <Section title="efeitos de fundo">
         <Field label="ative os efeitos que quiser">
           <div className="flex flex-wrap gap-2">
@@ -294,7 +351,7 @@ function ThemeTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Partia
         </Field>
       </Section>
 
-      <button className={btnPrimary} onClick={() => onSave({ theme })}>
+      <button className={btnPrimary} onClick={() => onSave({ theme, entry_effect: entryEffect })}>
         <Save className="h-3.5 w-3.5" /> aplicar tema
       </button>
     </div>
