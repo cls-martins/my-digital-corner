@@ -201,7 +201,7 @@ function ProfileTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Part
             {NAME_STYLES.map((s) => (
               <button
                 key={s.v}
-                onClick={() => setNameStyle(s.v as ProfileRow["name_style"])}
+                onClick={() => setNameStyle(s.v as NonNullable<ProfileRow["name_style"]>)}
                 className={`px-3 py-2 text-xs rounded-lg border transition text-left ${
                   nameStyle === s.v
                     ? "bg-[var(--neon-primary)]/20 border-[var(--neon-primary)]/50 text-[var(--neon-primary)]"
