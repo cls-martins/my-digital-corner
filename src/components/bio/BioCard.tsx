@@ -19,25 +19,7 @@ export function BioCard({ profile, links }: { profile: ProfileRow; links: LinkRo
   const buttons = links.filter((l) => !SOCIAL_TYPES.includes(l.type));
   const accent = profile.theme.primary;
 
-  // monospaced bracketed name like [C][O][R][U][J][A]
-  const renderBracketName = (txt: string) =>
-    Array.from(txt).map((ch, i) =>
-      ch === " " ? (
-        <span key={i} className="inline-block w-2" />
-      ) : (
-        <span
-          key={i}
-          className="inline-grid place-items-center h-7 w-6 sm:h-8 sm:w-7 mx-[1px] rounded-[3px] border font-mono text-[15px] sm:text-[17px] font-bold"
-          style={{
-            borderColor: `${accent}55`,
-            background: `${accent}10`,
-            color: "#fff",
-          }}
-        >
-          {ch.toUpperCase()}
-        </span>
-      )
-    );
+  const nameStyle = profile.name_style || "brackets";
 
   return (
     <motion.div
@@ -63,14 +45,6 @@ export function BioCard({ profile, links }: { profile: ProfileRow; links: LinkRo
             }}
           />
         )}
-        {/* views badge */}
-        <div
-          className="absolute top-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-md backdrop-blur-md text-[11px] font-mono"
-          style={{ background: "rgba(0,0,0,0.5)", color: accent }}
-        >
-          <Eye className="h-3 w-3" />
-          {profile.views ?? 0}
-        </div>
         {/* fade to body */}
         <div
           className="absolute inset-x-0 bottom-0 h-12"
