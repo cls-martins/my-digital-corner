@@ -85,7 +85,7 @@ export function BioCard({ profile, links }: { profile: ProfileRow; links: LinkRo
 
           {/* name + meta */}
           <div className="flex-1 min-w-0 pt-10">
-            <div className="flex flex-wrap items-center">{renderBracketName(name)}</div>
+            <NameDisplay name={name} style={nameStyle} accent={accent} />
             <p className="mt-1 text-[11px] font-mono text-white/60 truncate">
               @{profile.handle}
             </p>
