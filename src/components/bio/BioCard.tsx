@@ -1,7 +1,8 @@
 import { motion } from "framer-motion";
 import type { ProfileRow, LinkRow } from "@/lib/types";
 import { SocialIcon } from "./SocialIcon";
-import { Eye, ArrowUpRight, Crown, Sparkles, Verified, Zap } from "lucide-react";
+import { NameDisplay } from "./NameDisplay";
+import { ArrowUpRight, Crown, Sparkles, Verified, Zap } from "lucide-react";
 
 const BADGE_ICONS: Record<string, typeof Verified> = {
   premium: Crown,
