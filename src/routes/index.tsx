@@ -1,101 +1,26 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import type { ProfileRow, LinkRow } from "@/lib/types";
-import { BackgroundFX } from "@/components/bio/BackgroundFX";
-import { ThemeApplier } from "@/components/bio/ThemeApplier";
-import { BioCard } from "@/components/bio/BioCard";
-import { AudioPlayer } from "@/components/bio/AudioPlayer";
-import { CommentsBox } from "@/components/bio/CommentsBox";
-import { EntryOverlay } from "@/components/bio/EntryOverlay";
+import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "martins ✦ bio" },
-      { name: "description", content: "minha bio digital — links, vibes e contato." },
-      { property: "og:title", content: "martins ✦ bio" },
-      { property: "og:description", content: "minha bio digital — links, vibes e contato." },
-    ],
-  }),
+export const Route = createFileRoute('/')({ 
   component: Index,
-});
+})
 
 function Index() {
-  const [profile, setProfile] = useState<ProfileRow | null>(null);
-  const [links, setLinks] = useState<LinkRow[]>([]);
-
-  const load = async () => {
-    try {
-      const [pRes, lRes] = await Promise.all([
-        supabase.from("profile").select("*").limit(1).maybeSingle(),
-        supabase.from("links").select("*").order("position", { ascending: true }),
-      ]);
-      if (pRes.data) setProfile(pRes.data as unknown as ProfileRow);
-      if (lRes.data) setLinks(lRes.data as LinkRow[]);
-    } catch {
-      // silently retry — never show error to visitors
-    }
-  };
-
-  useEffect(() => {
-    load();
-    // auto-retry every 5s while we don't have data yet
-    const retry = setInterval(() => {
-      if (!profile) load();
-    }, 5000);
-
-    const ch = supabase
-      .channel("bio-live")
-      .on("postgres_changes", { event: "*", schema: "public", table: "profile" }, load)
-      .on("postgres_changes", { event: "*", schema: "public", table: "links" }, load)
-      .subscribe();
-    return () => {
-      clearInterval(retry);
-      supabase.removeChannel(ch);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  if (!profile) {
-    return (
-      <div className="min-h-screen grid place-items-center" style={{ background: "#070014" }}>
-        <div className="font-mono text-xs text-muted-foreground animate-pulse">carregando…</div>
-      </div>
-    );
-  }
-
-  const entryEffect = profile.entry_effect || "fade";
-
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden">
-      <ThemeApplier theme={profile.theme} />
-      <BackgroundFX
-        theme={profile.theme}
-        imageUrl={profile.background_image_url}
-        videoUrl={profile.background_video_url}
-        bigText={profile.handle}
-      />
-
-      <EntryOverlay
-        effect={entryEffect}
-        handle={profile.handle}
-        accent={profile.theme.primary}
-      />
-
-      <main className="relative z-10 mx-auto max-w-md px-4 py-10 sm:py-16 space-y-4">
-        <BioCard profile={profile} links={links} />
-
-        {profile.audio_url && (
-          <AudioPlayer
-            src={profile.audio_url}
-            title={profile.audio_title}
-            artist={profile.audio_artist}
-          />
-        )}
-
-        <CommentsBox />
-      </main>
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-b from-blue-50 to-white">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          🚀 My Digital Corner
+        </h1>
+        <p className="text-xl text-gray-600 mb-8">
+          Bem-vindo ao seu site hospedado na Vercel!
+        </p>
+        <div className="space-y-2 text-sm text-gray-500">
+          <p>✅ TanStack React Start</p>
+          <p>✅ TypeScript</p>
+          <p>✅ Tailwind CSS</p>
+          <p>✅ Vercel Deployment</p>
+        </div>
+      </div>
     </div>
-  );
+  )
 }
