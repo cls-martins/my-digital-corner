@@ -92,7 +92,7 @@ const Carousel = React.forwardRef<
 
   React.useEffect(() => {
     if (!api) {
-      return;
+      return null;
     }
 
     onSelect(api);

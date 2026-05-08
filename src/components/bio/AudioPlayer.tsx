@@ -58,14 +58,14 @@ export function AudioPlayer({ src, title, artist }: {
   useEffect(() => {
     if (!playing) {
       cancelAnimationFrame(rafRef.current);
-      return;
+      return null;
     }
     setupAnalyser();
     const analyser = analyserRef.current;
     const canvas = canvasRef.current;
-    if (!analyser || !canvas) return;
+    if (!analyser || !canvas) return null;
     const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    if (!ctx) return null;
 
     const bufferLength = analyser.frequencyBinCount;
     const dataArray = new Uint8Array(bufferLength);
