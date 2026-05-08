@@ -14,11 +14,11 @@ export function BackgroundFX({ theme, imageUrl, videoUrl, bigText }: {
   const showBigText = theme.effects?.includes("bigtext") !== false; // default ON
 
   useEffect(() => {
-    if (!hasParticles) return;
+    if (!hasParticles) return null;
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas) return null;
     const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    if (!ctx) return null;
 
     let raf = 0;
     let w = (canvas.width = window.innerWidth);
