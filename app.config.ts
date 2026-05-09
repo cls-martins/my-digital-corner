@@ -6,7 +6,7 @@ export default defineConfig({
   routers: {
     client: {
       type: 'client',
-      handler: './src/routes/app.tsx', // Caminho que você mencionou
+      handler: './src/app.tsx', // Caminho que você mencionou
       target: 'browser',
       plugins: () => [
         TanStackRouterVite(),
