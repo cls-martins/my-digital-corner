@@ -1,19 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import type { ProfileRow, LinkRow } from "@/lib/types";
-import { ThemeApplier } from "@/components/bio/ThemeApplier";
-import { BackgroundFX } from "@/components/bio/BackgroundFX";
-import { BioCard } from "@/components/bio/BioCard";
-import { AudioPlayer } from "@/components/bio/AudioPlayer";
-import { CommentsBox } from "@/components/bio/CommentsBox";
-import { EntryOverlay } from "@/components/bio/EntryOverlay";
+import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute("/")({
-  component: Index,
-});
+export const Route = createFileRoute('/')({
+  component: HomePage,
 
-function Index() {
   const [profile, setProfile] = useState<ProfileRow | null>(null);
   const [links, setLinks] = useState<LinkRow[]>([]);
 
