@@ -7,9 +7,16 @@ export const Route = createRootRoute({
 
 function RootComponent() {
   return (
-    <div className="min-h-screen bg-background font-sans antialiased">
-      <ScrollRestoration />
-      <Outlet />
-    </div>
+    <html lang="pt-BR">
+      <head>
+        <meta charSet="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>My Digital Corner</title>
+      </head>
+      <body className="min-h-screen bg-zinc-950 text-white antialiased">
+        <ScrollRestoration />
+        <Outlet />
+      </body>
+    </html>
   )
 }
