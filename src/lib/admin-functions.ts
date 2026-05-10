@@ -1,85 +1,48 @@
-import { createServerFn } from "@tanstack/react-start";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+// Pure-client admin API wrappers — call the `admin-api` Supabase Edge Function.
+// Signatures kept identical to the previous server-fn versions so the UI
+// can keep calling them as `adminLogin({ data: { ... } })`.
+import { supabase } from "@/integrations/supabase/client";
 
-const ADMIN_PASSWORD = "admin@martins#";
-
-function checkPassword(password: string) {
-  if (password !== ADMIN_PASSWORD) {
-    throw new Error("Senha incorreta");
+async function call<T = unknown>(action: string, payload: Record<string, unknown>): Promise<T> {
+  const { data, error } = await supabase.functions.invoke("admin-api", {
+    body: { action, ...payload },
+  });
+  if (error) throw new Error(error.message || "Falha na requisição");
+  if (data && (data as { error?: string }).error) {
+    throw new Error((data as { error: string }).error);
   }
+  return data as T;
 }
 
-export const adminLogin = createServerFn({ method: "POST" })
-  .inputValidator((d: { password: string }) => d)
-  .handler(async ({ data }) => {
-    checkPassword(data.password);
-    return { ok: true };
-  });
+export const adminLogin = ({ data }: { data: { password: string } }) =>
+  call<{ ok: true }>("login", { password: data.password });
 
-export const updateProfile = createServerFn({ method: "POST" })
-  .inputValidator((d: { password: string; patch: Record<string, unknown> }) => d)
-  .handler(async ({ data }) => {
-    checkPassword(data.password);
-    const { data: existing } = await supabaseAdmin.from("profile").select("id").limit(1).single();
-    if (!existing) throw new Error("Profile not found");
-    const { error } = await supabaseAdmin.from("profile").update(data.patch as never).eq("id", existing.id);
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
+export const updateProfile = ({ data }: { data: { password: string; patch: Record<string, unknown> } }) =>
+  call<{ ok: true }>("updateProfile", { password: data.password, patch: data.patch });
 
-export const upsertLink = createServerFn({ method: "POST" })
-  .inputValidator((d: {
+export const upsertLink = ({
+  data,
+}: {
+  data: {
     password: string;
     link: { id?: string; label: string; url: string; icon: string; type: string; position: number };
-  }) => d)
-  .handler(async ({ data }) => {
-    checkPassword(data.password);
-    if (data.link.id) {
-      const { error } = await supabaseAdmin.from("links").update({
-        label: data.link.label, url: data.link.url, icon: data.link.icon,
-        type: data.link.type, position: data.link.position,
-      }).eq("id", data.link.id);
-      if (error) throw new Error(error.message);
-    } else {
-      const { error } = await supabaseAdmin.from("links").insert({
-        label: data.link.label, url: data.link.url, icon: data.link.icon,
-        type: data.link.type, position: data.link.position,
-      });
-      if (error) throw new Error(error.message);
-    }
-    return { ok: true };
-  });
+  };
+}) => call<{ ok: true }>("upsertLink", { password: data.password, link: data.link });
 
-export const deleteLink = createServerFn({ method: "POST" })
-  .inputValidator((d: { password: string; id: string }) => d)
-  .handler(async ({ data }) => {
-    checkPassword(data.password);
-    const { error } = await supabaseAdmin.from("links").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
+export const deleteLink = ({ data }: { data: { password: string; id: string } }) =>
+  call<{ ok: true }>("deleteLink", { password: data.password, id: data.id });
 
-export const deleteComment = createServerFn({ method: "POST" })
-  .inputValidator((d: { password: string; id: string }) => d)
-  .handler(async ({ data }) => {
-    checkPassword(data.password);
-    const { error } = await supabaseAdmin.from("comments").delete().eq("id", data.id);
-    if (error) throw new Error(error.message);
-    return { ok: true };
-  });
+export const deleteComment = ({ data }: { data: { password: string; id: string } }) =>
+  call<{ ok: true }>("deleteComment", { password: data.password, id: data.id });
 
-export const uploadMedia = createServerFn({ method: "POST" })
-  .inputValidator((d: { password: string; filename: string; contentBase64: string; contentType: string }) => d)
-  .handler(async ({ data }) => {
-    checkPassword(data.password);
-    const buf = Buffer.from(data.contentBase64, "base64");
-    if (buf.length > 25 * 1024 * 1024) throw new Error("Arquivo maior que 25MB");
-    const safe = data.filename.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const path = `${Date.now()}-${safe}`;
-    const { error } = await supabaseAdmin.storage.from("media").upload(path, buf, {
-      contentType: data.contentType, upsert: false,
-    });
-    if (error) throw new Error(error.message);
-    const { data: pub } = supabaseAdmin.storage.from("media").getPublicUrl(path);
-    return { url: pub.publicUrl };
+export const uploadMedia = ({
+  data,
+}: {
+  data: { password: string; filename: string; contentBase64: string; contentType: string };
+}) =>
+  call<{ url: string }>("uploadMedia", {
+    password: data.password,
+    filename: data.filename,
+    contentBase64: data.contentBase64,
+    contentType: data.contentType,
   });

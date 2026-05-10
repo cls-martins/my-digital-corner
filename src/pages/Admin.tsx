@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState, type FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { ProfileRow, LinkRow, CommentRow, Theme, Badge } from "@/lib/types";
 import {
@@ -8,20 +8,16 @@ import {
 import { ICON_OPTIONS, SocialIcon } from "@/components/bio/SocialIcon";
 import { Trash2, Plus, Save, Upload, LogOut, ArrowLeft, Image, Video, Music } from "lucide-react";
 
-export const Route = createFileRoute("/admin")({
-  head: () => ({ meta: [{ title: "admin" }, { name: "robots", content: "noindex" }] }),
-  component: AdminPage,
-});
-
 const STORAGE_KEY = "bio_admin_pwd";
 
-function AdminPage() {
+export default function AdminPage() {
   const [pwd, setPwd] = useState<string>("");
   const [authed, setAuthed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    document.title = "admin";
     const saved = sessionStorage.getItem(STORAGE_KEY);
     if (saved) {
       setPwd(saved);
@@ -164,8 +160,6 @@ function AdminDashboard({ password, onLogout }: { password: string; onLogout: ()
     </div>
   );
 }
-
-/* -------- Tabs -------- */
 
 function ProfileTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Partial<ProfileRow>) => Promise<void> }) {
   const [name, setName] = useState(profile.display_name);
@@ -630,7 +624,6 @@ function CommentsTab({ comments, password, onChange, flash }: {
   );
 }
 
-/* -------- shared bits -------- */
 const inputCls = "w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[var(--neon-primary)] transition";
 const btnPrimary = "inline-flex items-center gap-2 px-3.5 py-2 rounded-lg neon-border bg-black/40 hover:bg-black/60 text-sm font-medium";
 const btnGhost = "inline-flex items-center gap-2 px-3.5 py-2 rounded-lg border border-white/10 hover:border-[var(--neon-primary)]/50 text-sm";
