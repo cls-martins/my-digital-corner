@@ -64,25 +64,25 @@ export function CommentsBox() {
       </div>
 
       <form onSubmit={submit} className="space-y-2">
-        <div className="flex gap-2">
-          <input
-            value={nickname}
-            onChange={(e) => setNickname(e.target.value)}
-            placeholder="seu apelido"
-            maxLength={40}
-            className="w-32 sm:w-40 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[var(--neon-primary)] transition"
-          />
+        <input
+          value={nickname}
+          onChange={(e) => setNickname(e.target.value)}
+          placeholder="seu apelido"
+          maxLength={40}
+          className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[var(--neon-primary)] transition"
+        />
+        <div className="flex gap-2 min-w-0">
           <input
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="deixe uma mensagem…"
             maxLength={500}
-            className="flex-1 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[var(--neon-primary)] transition"
+            className="flex-1 min-w-0 bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[var(--neon-primary)] transition"
           />
           <button
             type="submit"
             disabled={sending || !nickname.trim() || !message.trim()}
-            className="px-3 rounded-lg neon-border bg-black/40 hover:bg-black/60 disabled:opacity-40 transition"
+            className="shrink-0 h-9 w-9 grid place-items-center rounded-lg neon-border bg-black/40 hover:bg-black/60 disabled:opacity-40 transition"
             aria-label="Enviar"
           >
             <Send className="h-4 w-4" />
