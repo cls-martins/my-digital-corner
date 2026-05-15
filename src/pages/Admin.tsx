@@ -105,9 +105,13 @@ function AdminDashboard({ password, onLogout }: { password: string; onLogout: ()
   };
 
   const saveProfile = async (patch: Partial<ProfileRow>) => {
-    await updateProfile({ data: { password, patch: patch as Record<string, unknown> } });
-    flash("salvo ✓");
-    await reload();
+    try {
+      await updateProfile({ data: { password, patch: patch as Record<string, unknown> } });
+      flash("salvo ✓");
+      await reload();
+    } catch (e) {
+      flash("erro: " + ((e as Error).message || "falha ao salvar"));
+    }
   };
 
   if (!profile) return <div className="min-h-screen grid place-items-center text-sm">carregando…</div>;

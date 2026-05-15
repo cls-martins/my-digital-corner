@@ -79,8 +79,10 @@ export type Database = {
           bio: string
           created_at: string
           display_name: string
+          entry_effect: string
           handle: string
           id: string
+          name_style: string
           theme: Json
           updated_at: string
           views: number
@@ -98,8 +100,10 @@ export type Database = {
           bio?: string
           created_at?: string
           display_name?: string
+          entry_effect?: string
           handle?: string
           id?: string
+          name_style?: string
           theme?: Json
           updated_at?: string
           views?: number
@@ -117,8 +121,10 @@ export type Database = {
           bio?: string
           created_at?: string
           display_name?: string
+          entry_effect?: string
           handle?: string
           id?: string
+          name_style?: string
           theme?: Json
           updated_at?: string
           views?: number
