@@ -1,5 +1,4 @@
-// Admin API edge function — replaces the previous TanStack Start server fns.
-// Single endpoint with `action` discriminator. Uses service role to bypass RLS.
+// Admin API edge function. Single endpoint with `action` discriminator.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const ADMIN_PASSWORD = "admin@martins#";
@@ -86,6 +85,61 @@ Deno.serve(async (req) => {
         const { error } = await supabase.from("comments").delete().eq("id", body.id);
         if (error) throw new Error(error.message);
         return json({ ok: true });
+      }
+      case "replyComment": {
+        check(password);
+        const { parent_id, nickname, message } = body;
+        if (!parent_id || !nickname || !message) throw new Error("dados incompletos");
+        const { error } = await supabase.from("comments").insert({
+          parent_id, nickname, message, is_author: true,
+        });
+        if (error) throw new Error(error.message);
+        return json({ ok: true });
+      }
+      case "editComment": {
+        check(password);
+        const { id, message } = body;
+        const { error } = await supabase.from("comments")
+          .update({ message }).eq("id", id).eq("is_author", true);
+        if (error) throw new Error(error.message);
+        return json({ ok: true });
+      }
+      case "createPost": {
+        check(password);
+        const { type, content, media_url } = body;
+        const { error } = await supabase.from("posts").insert({
+          type: type || "text",
+          content: content || null,
+          media_url: media_url || null,
+        });
+        if (error) throw new Error(error.message);
+        return json({ ok: true });
+      }
+      case "updatePost": {
+        check(password);
+        const { id, content, media_url } = body;
+        const patch: Record<string, unknown> = {};
+        if (content !== undefined) patch.content = content;
+        if (media_url !== undefined) patch.media_url = media_url;
+        const { error } = await supabase.from("posts").update(patch).eq("id", id);
+        if (error) throw new Error(error.message);
+        return json({ ok: true });
+      }
+      case "deletePost": {
+        check(password);
+        const { error } = await supabase.from("posts").delete().eq("id", body.id);
+        if (error) throw new Error(error.message);
+        return json({ ok: true });
+      }
+      case "signUploadUrl": {
+        check(password);
+        const { filename } = body;
+        const safe = String(filename || "file").replace(/[^a-zA-Z0-9._-]/g, "_");
+        const path = `${Date.now()}-${safe}`;
+        const { data, error } = await supabase.storage.from("media").createSignedUploadUrl(path);
+        if (error) throw new Error(error.message);
+        const { data: pub } = supabase.storage.from("media").getPublicUrl(path);
+        return json({ path: data.path, token: data.token, publicUrl: pub.publicUrl });
       }
       case "uploadMedia": {
         check(password);

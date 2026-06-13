@@ -2,14 +2,8 @@ import { motion } from "framer-motion";
 import type { ProfileRow, LinkRow } from "@/lib/types";
 import { SocialIcon } from "./SocialIcon";
 import { NameDisplay } from "./NameDisplay";
-import { ArrowUpRight, Crown, Sparkles, Verified, Zap } from "lucide-react";
-
-const BADGE_ICONS: Record<string, typeof Verified> = {
-  premium: Crown,
-  founder: Sparkles,
-  verified: Verified,
-  staff: Zap,
-};
+import { ArrowUpRight, Crown, Sparkles } from "lucide-react";
+import { BADGE_ICON_MAP } from "@/lib/badge-icons";
 
 const SOCIAL_TYPES = ["instagram", "discord", "whatsapp", "threads", "google", "twitter", "x", "youtube", "twitch", "github", "spotify"];
 
@@ -96,7 +90,7 @@ export function BioCard({ profile, links }: { profile: ProfileRow; links: LinkRo
         {profile.badges.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-1.5">
             {profile.badges.map((b, i) => {
-              const Icon = BADGE_ICONS[b.label.toLowerCase()] || Sparkles;
+              const Icon = (b.icon && BADGE_ICON_MAP[b.icon]) || BADGE_ICON_MAP[b.label.toLowerCase()] || Sparkles;
               return (
                 <span
                   key={i}

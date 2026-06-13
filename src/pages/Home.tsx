@@ -7,6 +7,7 @@ import { ThemeApplier } from "@/components/bio/ThemeApplier";
 import { EntryOverlay } from "@/components/bio/EntryOverlay";
 import { AudioPlayer } from "@/components/bio/AudioPlayer";
 import { CommentsBox } from "@/components/bio/CommentsBox";
+import { PostsFeed } from "@/components/bio/PostsFeed";
 
 export default function Home() {
   const [profile, setProfile] = useState<ProfileRow | null>(null);
@@ -80,16 +81,9 @@ export default function Home() {
             />
           )}
 
-          <CommentsBox />
+          <PostsFeed />
 
-          <div className="text-center pt-2">
-            <a
-              href="/admin"
-              className="text-[10px] font-mono uppercase tracking-[0.3em] text-white/30 hover:text-white/60 transition"
-            >
-              admin
-            </a>
-          </div>
+          <CommentsBox />
         </div>
       </main>
     </>

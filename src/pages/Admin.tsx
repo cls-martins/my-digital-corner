@@ -1,12 +1,14 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import type { ProfileRow, LinkRow, CommentRow, Theme, Badge } from "@/lib/types";
+import type { ProfileRow, LinkRow, CommentRow, Theme, Badge, PostRow } from "@/lib/types";
 import {
-  adminLogin, updateProfile, upsertLink, deleteLink, deleteComment, uploadMedia,
+  adminLogin, updateProfile, upsertLink, deleteLink, deleteComment, signUploadUrl,
+  createPost, updatePost, deletePost, replyComment, editComment,
 } from "@/lib/admin-functions";
 import { ICON_OPTIONS, SocialIcon } from "@/components/bio/SocialIcon";
-import { Trash2, Plus, Save, Upload, LogOut, ArrowLeft, Image, Video, Music } from "lucide-react";
+import { BADGE_ICON_OPTIONS, BADGE_ICON_MAP } from "@/lib/badge-icons";
+import { Trash2, Plus, Save, Upload, LogOut, ArrowLeft, Image, Video, Music, Reply, Pencil, Check, X } from "lucide-react";
 
 const STORAGE_KEY = "bio_admin_pwd";
 
@@ -83,18 +85,21 @@ function AdminDashboard({ password, onLogout }: { password: string; onLogout: ()
   const [profile, setProfile] = useState<ProfileRow | null>(null);
   const [links, setLinks] = useState<LinkRow[]>([]);
   const [comments, setComments] = useState<CommentRow[]>([]);
-  const [tab, setTab] = useState<"profile" | "theme" | "media" | "links" | "comments">("profile");
+  const [posts, setPosts] = useState<PostRow[]>([]);
+  const [tab, setTab] = useState<"profile" | "theme" | "media" | "links" | "posts" | "comments">("profile");
   const [savingMsg, setSavingMsg] = useState<string | null>(null);
 
   const reload = async () => {
-    const [{ data: p }, { data: l }, { data: c }] = await Promise.all([
+    const [{ data: p }, { data: l }, { data: c }, { data: po }] = await Promise.all([
       supabase.from("profile").select("*").limit(1).single(),
       supabase.from("links").select("*").order("position", { ascending: true }),
-      supabase.from("comments").select("*").order("created_at", { ascending: false }).limit(100),
+      supabase.from("comments").select("*").order("created_at", { ascending: false }).limit(200),
+      supabase.from("posts").select("*").order("created_at", { ascending: false }).limit(100),
     ]);
     if (p) setProfile(p as unknown as ProfileRow);
     if (l) setLinks(l as LinkRow[]);
     if (c) setComments(c as CommentRow[]);
+    if (po) setPosts(po as PostRow[]);
   };
 
   useEffect(() => { reload(); }, []);
@@ -121,6 +126,7 @@ function AdminDashboard({ password, onLogout }: { password: string; onLogout: ()
     { k: "theme", label: "tema" },
     { k: "media", label: "mídia" },
     { k: "links", label: "links" },
+    { k: "posts", label: `posts (${posts.length})` },
     { k: "comments", label: `comentários (${comments.length})` },
   ];
 
@@ -159,6 +165,7 @@ function AdminDashboard({ password, onLogout }: { password: string; onLogout: ()
         {tab === "theme" && <ThemeTab profile={profile} onSave={saveProfile} />}
         {tab === "media" && <MediaTab profile={profile} password={password} onSave={saveProfile} />}
         {tab === "links" && <LinksTab links={links} password={password} onChange={reload} flash={flash} />}
+        {tab === "posts" && <PostsTab posts={posts} password={password} onChange={reload} flash={flash} />}
         {tab === "comments" && <CommentsTab comments={comments} password={password} onChange={reload} flash={flash} />}
       </main>
     </div>
@@ -219,33 +226,56 @@ function ProfileTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Part
       <Section title="badges">
         <div className="space-y-2">
           {badges.map((b, i) => (
-            <div key={i} className="flex gap-2 items-center">
-              <input
-                className={inputCls + " flex-1"}
-                value={b.label}
-                onChange={(e) => {
-                  const c = [...badges]; c[i] = { ...c[i], label: e.target.value }; setBadges(c);
-                }}
-              />
-              <input
-                type="color"
-                value={b.color}
-                onChange={(e) => {
-                  const c = [...badges]; c[i] = { ...c[i], color: e.target.value }; setBadges(c);
-                }}
-                className="h-9 w-12 rounded-lg bg-transparent border border-white/10"
-              />
-              <button
-                onClick={() => setBadges(badges.filter((_, j) => j !== i))}
-                className="h-9 w-9 grid place-items-center rounded-lg border border-white/10 hover:border-destructive/50"
-                aria-label="Remover">
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
+            <div key={i} className="space-y-1.5 rounded-lg border border-white/10 p-2">
+              <div className="flex gap-2 items-center">
+                <input
+                  className={inputCls + " flex-1"}
+                  placeholder="rótulo"
+                  value={b.label}
+                  onChange={(e) => {
+                    const c = [...badges]; c[i] = { ...c[i], label: e.target.value }; setBadges(c);
+                  }}
+                />
+                <input
+                  type="color"
+                  value={b.color}
+                  onChange={(e) => {
+                    const c = [...badges]; c[i] = { ...c[i], color: e.target.value }; setBadges(c);
+                  }}
+                  className="h-9 w-12 rounded-lg bg-transparent border border-white/10"
+                />
+                <button
+                  onClick={() => setBadges(badges.filter((_, j) => j !== i))}
+                  className="h-9 w-9 grid place-items-center rounded-lg border border-white/10 hover:border-destructive/50"
+                  aria-label="Remover">
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {BADGE_ICON_OPTIONS.map((ic) => {
+                  const Cmp = BADGE_ICON_MAP[ic];
+                  const active = (b.icon || "sparkles") === ic;
+                  return (
+                    <button
+                      key={ic}
+                      onClick={() => { const c = [...badges]; c[i] = { ...c[i], icon: ic }; setBadges(c); }}
+                      className={`h-7 w-7 grid place-items-center rounded-md border ${
+                        active
+                          ? "border-[var(--neon-primary)] text-[var(--neon-primary)] bg-[var(--neon-primary)]/10"
+                          : "border-white/10 text-muted-foreground hover:text-foreground"
+                      }`}
+                      title={ic}
+                    >
+                      <Cmp className="h-3.5 w-3.5" />
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           ))}
           <button
             className={btnGhost}
-            onClick={() => setBadges([...badges, { label: "novo", color: "#a855f7" }])}>
+            onClick={() => setBadges([...badges, { label: "novo", color: "#a855f7", icon: "sparkles" }])}>
             <Plus className="h-3.5 w-3.5" /> novo badge
           </button>
         </div>
@@ -457,18 +487,15 @@ function UploadField({ icon, label, accept, currentUrl, password, onUploaded }: 
     setErr(null);
     setBusy(true);
     try {
-      const buf = await file.arrayBuffer();
-      const bytes = new Uint8Array(buf);
-      let bin = "";
-      const CHUNK = 0x8000;
-      for (let i = 0; i < bytes.length; i += CHUNK) {
-        bin += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + CHUNK)));
-      }
-      const b64 = btoa(bin);
-      const res = await uploadMedia({
-        data: { password, filename: file.name, contentBase64: b64, contentType: file.type || "application/octet-stream" },
+      const { path, token, publicUrl } = await signUploadUrl({
+        data: { password, filename: file.name },
       });
-      onUploaded(res.url);
+      const { error } = await supabase.storage.from("media").uploadToSignedUrl(path, token, file, {
+        contentType: file.type || "application/octet-stream",
+        upsert: false,
+      });
+      if (error) throw error;
+      onUploaded(publicUrl);
     } catch (e) {
       setErr((e as Error).message || "falha ao enviar");
     } finally {
@@ -597,34 +624,222 @@ function LinkRowEdit({ link, types, onSave, onRemove }: {
 function CommentsTab({ comments, password, onChange, flash }: {
   comments: CommentRow[]; password: string; onChange: () => Promise<void>; flash: (m: string) => void;
 }) {
+  const [replyTo, setReplyTo] = useState<string | null>(null);
+  const [replyMsg, setReplyMsg] = useState("");
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editMsg, setEditMsg] = useState("");
+
+  const roots = comments.filter((c) => !c.parent_id);
+  const repliesOf = (id: string) =>
+    comments.filter((c) => c.parent_id === id).sort(
+      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+
   const remove = async (id: string) => {
     if (!confirm("apagar este comentário?")) return;
     await deleteComment({ data: { password, id } });
     flash("removido");
     await onChange();
   };
+  const sendReply = async (parentId: string) => {
+    if (!replyMsg.trim()) return;
+    await replyComment({ data: { password, parent_id: parentId, nickname: "martins", message: replyMsg.trim() } });
+    setReplyTo(null); setReplyMsg(""); flash("respondido");
+    await onChange();
+  };
+  const saveEdit = async (id: string) => {
+    if (!editMsg.trim()) return;
+    await editComment({ data: { password, id, message: editMsg.trim() } });
+    setEditId(null); setEditMsg(""); flash("editado");
+    await onChange();
+  };
+
+  const renderItem = (c: CommentRow, nested = false) => (
+    <div key={c.id} className={`rounded-xl border border-white/10 bg-black/20 p-3 ${nested ? "ml-4" : ""}`}>
+      <div className="flex items-start gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="text-xs font-semibold flex items-center gap-2">
+            <span className={c.is_author ? "text-[var(--neon-primary)]" : "gradient-text"}>{c.nickname}</span>
+            {c.is_author && <span className="text-[9px] uppercase tracking-wider px-1 py-0.5 rounded border border-[var(--neon-primary)]/40 text-[var(--neon-primary)]">autor</span>}
+          </div>
+          {editId === c.id ? (
+            <div className="mt-1 flex gap-1">
+              <input className={inputCls} value={editMsg} onChange={(e) => setEditMsg(e.target.value)} />
+              <button onClick={() => saveEdit(c.id)} className="h-9 w-9 grid place-items-center rounded-lg border border-white/10"><Check className="h-4 w-4" /></button>
+              <button onClick={() => setEditId(null)} className="h-9 w-9 grid place-items-center rounded-lg border border-white/10"><X className="h-4 w-4" /></button>
+            </div>
+          ) : (
+            <p className="text-sm break-words mt-0.5">{c.message}</p>
+          )}
+          <p className="text-[10px] font-mono text-muted-foreground mt-1">
+            {new Date(c.created_at).toLocaleString()}
+          </p>
+        </div>
+        <div className="flex flex-col gap-1">
+          {!nested && (
+            <button onClick={() => { setReplyTo(c.id); setReplyMsg(""); }}
+              className="h-8 w-8 grid place-items-center rounded-lg border border-white/10 hover:border-[var(--neon-primary)]/50" aria-label="Responder">
+              <Reply className="h-3.5 w-3.5" />
+            </button>
+          )}
+          {c.is_author && (
+            <button onClick={() => { setEditId(c.id); setEditMsg(c.message); }}
+              className="h-8 w-8 grid place-items-center rounded-lg border border-white/10 hover:border-[var(--neon-primary)]/50" aria-label="Editar">
+              <Pencil className="h-3.5 w-3.5" />
+            </button>
+          )}
+          <button onClick={() => remove(c.id)}
+            className="h-8 w-8 grid place-items-center rounded-lg border border-white/10 hover:border-destructive/50">
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
+      {replyTo === c.id && (
+        <div className="mt-2 flex gap-1">
+          <input className={inputCls} placeholder="responder como autor…" value={replyMsg} onChange={(e) => setReplyMsg(e.target.value)} />
+          <button onClick={() => sendReply(c.id)} className={btnPrimary}><Save className="h-3.5 w-3.5" /></button>
+        </div>
+      )}
+      {!nested && repliesOf(c.id).map((r) => renderItem(r, true))}
+    </div>
+  );
 
   return (
     <Section title="comentários públicos">
       <div className="space-y-2">
-        {comments.map((c) => (
-          <div key={c.id} className="flex items-start gap-3 rounded-xl border border-white/10 bg-black/20 p-3">
-            <div className="flex-1 min-w-0">
-              <div className="text-xs gradient-text font-semibold">{c.nickname}</div>
-              <p className="text-sm break-words">{c.message}</p>
-              <p className="text-[10px] font-mono text-muted-foreground mt-1">
-                {new Date(c.created_at).toLocaleString()}
-              </p>
-            </div>
-            <button onClick={() => remove(c.id)}
-              className="h-8 w-8 grid place-items-center rounded-lg border border-white/10 hover:border-destructive/50">
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        ))}
-        {comments.length === 0 && <p className="text-xs text-muted-foreground">sem comentários ainda.</p>}
+        {roots.map((c) => renderItem(c))}
+        {roots.length === 0 && <p className="text-xs text-muted-foreground">sem comentários ainda.</p>}
       </div>
     </Section>
+  );
+}
+
+function PostsTab({ posts, password, onChange, flash }: {
+  posts: PostRow[]; password: string; onChange: () => Promise<void>; flash: (m: string) => void;
+}) {
+  const [type, setType] = useState<"text" | "image" | "video">("text");
+  const [content, setContent] = useState("");
+  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState("");
+  const [editMediaUrl, setEditMediaUrl] = useState<string | null>(null);
+
+  const submit = async () => {
+    setErr(null);
+    if (type === "text" && !content.trim()) return setErr("conteúdo vazio");
+    if (type !== "text" && !mediaUrl) return setErr("envie a mídia primeiro");
+    setBusy(true);
+    try {
+      await createPost({ data: { password, type, content: content || null, media_url: mediaUrl } });
+      setContent(""); setMediaUrl(null);
+      flash("post criado ✓");
+      await onChange();
+    } catch (e) {
+      setErr((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const remove = async (id: string) => {
+    if (!confirm("apagar este post?")) return;
+    await deletePost({ data: { password, id } });
+    flash("removido");
+    await onChange();
+  };
+
+  const saveEdit = async (id: string) => {
+    await updatePost({ data: { password, id, content: editContent, media_url: editMediaUrl } });
+    setEditingId(null);
+    flash("atualizado ✓");
+    await onChange();
+  };
+
+  return (
+    <div className="space-y-4">
+      <Section title="criar post">
+        <Field label="tipo">
+          <div className="flex gap-2">
+            {(["text", "image", "video"] as const).map((t) => (
+              <button key={t} onClick={() => { setType(t); setMediaUrl(null); }}
+                className={`px-3 py-1.5 text-xs rounded-lg border ${
+                  type === t
+                    ? "bg-[var(--neon-primary)]/20 border-[var(--neon-primary)]/50 text-[var(--neon-primary)]"
+                    : "border-white/10 text-muted-foreground"
+                }`}>{t}</button>
+            ))}
+          </div>
+        </Field>
+        {type !== "text" && (
+          <UploadField
+            icon={type === "image" ? <Image className="h-3.5 w-3.5" /> : <Video className="h-3.5 w-3.5" />}
+            label={type === "image" ? "imagem" : "vídeo"}
+            accept={type === "image" ? "image/*" : "video/*"}
+            currentUrl={mediaUrl}
+            password={password}
+            onUploaded={(url) => setMediaUrl(url)}
+          />
+        )}
+        <Field label="texto (opcional para mídia)">
+          <textarea rows={3} className={inputCls} value={content} onChange={(e) => setContent(e.target.value)} />
+        </Field>
+        {err && <p className="text-xs text-destructive">{err}</p>}
+        <button className={btnPrimary} disabled={busy} onClick={submit}>
+          <Plus className="h-3.5 w-3.5" /> publicar
+        </button>
+      </Section>
+
+      <Section title={`posts (${posts.length})`}>
+        <div className="space-y-2">
+          {posts.map((p) => (
+            <div key={p.id} className="rounded-xl border border-white/10 bg-black/20 p-3 space-y-2">
+              <div className="flex items-center gap-2 text-[10px] font-mono text-muted-foreground">
+                <span className="px-1.5 py-0.5 rounded border border-white/10 uppercase">{p.type}</span>
+                <span>{new Date(p.created_at).toLocaleString()}</span>
+                <div className="ml-auto flex gap-1">
+                  <button onClick={() => { setEditingId(p.id); setEditContent(p.content || ""); setEditMediaUrl(p.media_url); }}
+                    className="h-7 w-7 grid place-items-center rounded-lg border border-white/10"><Pencil className="h-3 w-3" /></button>
+                  <button onClick={() => remove(p.id)}
+                    className="h-7 w-7 grid place-items-center rounded-lg border border-white/10 hover:border-destructive/50"><Trash2 className="h-3 w-3" /></button>
+                </div>
+              </div>
+              {editingId === p.id ? (
+                <div className="space-y-2">
+                  {p.type !== "text" && (
+                    <UploadField
+                      icon={p.type === "image" ? <Image className="h-3.5 w-3.5" /> : <Video className="h-3.5 w-3.5" />}
+                      label={`substituir ${p.type}`}
+                      accept={p.type === "image" ? "image/*" : "video/*"}
+                      currentUrl={editMediaUrl}
+                      password={password}
+                      onUploaded={(url) => setEditMediaUrl(url)}
+                    />
+                  )}
+                  <textarea rows={3} className={inputCls} value={editContent} onChange={(e) => setEditContent(e.target.value)} />
+                  <div className="flex gap-2">
+                    <button onClick={() => saveEdit(p.id)} className={btnPrimary}><Save className="h-3.5 w-3.5" /> salvar</button>
+                    <button onClick={() => setEditingId(null)} className={btnGhost}>cancelar</button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {p.type === "image" && p.media_url && (
+                    <img src={p.media_url} alt="" className="w-full max-h-60 rounded-lg object-cover" />
+                  )}
+                  {p.type === "video" && p.media_url && (
+                    <video src={p.media_url} controls className="w-full max-h-60 rounded-lg" />
+                  )}
+                  {p.content && <p className="text-sm whitespace-pre-wrap break-words">{p.content}</p>}
+                </>
+              )}
+            </div>
+          ))}
+          {posts.length === 0 && <p className="text-xs text-muted-foreground">sem posts ainda.</p>}
+        </div>
+      </Section>
+    </div>
   );
 }
 

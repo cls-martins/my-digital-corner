@@ -1,6 +1,3 @@
-// Pure-client admin API wrappers — call the `admin-api` Supabase Edge Function.
-// Signatures kept identical to the previous server-fn versions so the UI
-// can keep calling them as `adminLogin({ data: { ... } })`.
 import { supabase } from "@/integrations/supabase/client";
 
 async function call<T = unknown>(action: string, payload: Record<string, unknown>): Promise<T> {
@@ -35,6 +32,25 @@ export const deleteLink = ({ data }: { data: { password: string; id: string } })
 export const deleteComment = ({ data }: { data: { password: string; id: string } }) =>
   call<{ ok: true }>("deleteComment", { password: data.password, id: data.id });
 
+export const replyComment = ({ data }: { data: { password: string; parent_id: string; nickname: string; message: string } }) =>
+  call<{ ok: true }>("replyComment", data as unknown as Record<string, unknown>);
+
+export const editComment = ({ data }: { data: { password: string; id: string; message: string } }) =>
+  call<{ ok: true }>("editComment", data as unknown as Record<string, unknown>);
+
+export const createPost = ({ data }: { data: { password: string; type: string; content?: string | null; media_url?: string | null } }) =>
+  call<{ ok: true }>("createPost", data as unknown as Record<string, unknown>);
+
+export const updatePost = ({ data }: { data: { password: string; id: string; content?: string | null; media_url?: string | null } }) =>
+  call<{ ok: true }>("updatePost", data as unknown as Record<string, unknown>);
+
+export const deletePost = ({ data }: { data: { password: string; id: string } }) =>
+  call<{ ok: true }>("deletePost", data as unknown as Record<string, unknown>);
+
+export const signUploadUrl = ({ data }: { data: { password: string; filename: string } }) =>
+  call<{ path: string; token: string; publicUrl: string }>("signUploadUrl", data as unknown as Record<string, unknown>);
+
+// kept for compat
 export const uploadMedia = ({
   data,
 }: {
