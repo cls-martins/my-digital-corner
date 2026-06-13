@@ -80,16 +80,9 @@ export default function Home() {
             />
           )}
 
-          <CommentsBox />
+          <PostsFeed />
 
-          <div className="text-center pt-2">
-            <a
-              href="/admin"
-              className="text-[10px] font-mono uppercase tracking-[0.3em] text-white/30 hover:text-white/60 transition"
-            >
-              admin
-            </a>
-          </div>
+          <CommentsBox />
         </div>
       </main>
     </>
