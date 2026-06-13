@@ -487,18 +487,15 @@ function UploadField({ icon, label, accept, currentUrl, password, onUploaded }: 
     setErr(null);
     setBusy(true);
     try {
-      const buf = await file.arrayBuffer();
-      const bytes = new Uint8Array(buf);
-      let bin = "";
-      const CHUNK = 0x8000;
-      for (let i = 0; i < bytes.length; i += CHUNK) {
-        bin += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + CHUNK)));
-      }
-      const b64 = btoa(bin);
-      const res = await uploadMedia({
-        data: { password, filename: file.name, contentBase64: b64, contentType: file.type || "application/octet-stream" },
+      const { path, token, publicUrl } = await signUploadUrl({
+        data: { password, filename: file.name },
       });
-      onUploaded(res.url);
+      const { error } = await supabase.storage.from("media").uploadToSignedUrl(path, token, file, {
+        contentType: file.type || "application/octet-stream",
+        upsert: false,
+      });
+      if (error) throw error;
+      onUploaded(publicUrl);
     } catch (e) {
       setErr((e as Error).message || "falha ao enviar");
     } finally {
