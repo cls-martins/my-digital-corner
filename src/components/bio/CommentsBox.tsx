@@ -98,7 +98,7 @@ export function CommentsBox() {
     <div className="glass rounded-2xl p-4 sm:p-5 space-y-4">
       <div className="flex items-center gap-2">
         <MessageSquare className="h-4 w-4" style={{ color: "var(--neon-primary)" }} />
-        <h3 className="text-sm uppercase tracking-[0.2em] font-mono">guestbook</h3>
+        <h3 className="text-sm uppercase tracking-[0.2em] font-mono">Comentários</h3>
         <span className="ml-auto text-xs text-muted-foreground">{comments.length}</span>
       </div>
 
