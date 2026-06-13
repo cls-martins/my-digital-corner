@@ -79,9 +79,6 @@ export function AudioPlayer({ src, title, artist }: {
       for (let i = 0; i < bufferLength; i++) {
         const v = dataArray[i] / 255;
         const barH = v * h;
-        const grad = ctx.createLinearGradient(0, h, 0, 0);
-        grad.addColorStop(0, "var(--neon-primary)");
-        grad.addColorStop(1, "var(--neon-accent)");
         ctx.fillStyle = `rgba(168,85,247,${0.4 + v * 0.6})`;
         ctx.fillRect(i * barW, h - barH, barW - 1, barH);
       }
