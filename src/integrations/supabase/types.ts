@@ -18,22 +18,36 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          is_author: boolean
           message: string
           nickname: string
+          parent_id: string | null
         }
         Insert: {
           created_at?: string
           id?: string
+          is_author?: boolean
           message: string
           nickname: string
+          parent_id?: string | null
         }
         Update: {
           created_at?: string
           id?: string
+          is_author?: boolean
           message?: string
           nickname?: string
+          parent_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       links: {
         Row: {
@@ -62,6 +76,30 @@ export type Database = {
           position?: number
           type?: string
           url?: string
+        }
+        Relationships: []
+      }
+      posts: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          media_url: string | null
+          type: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          media_url?: string | null
+          type?: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          media_url?: string | null
+          type?: string
         }
         Relationships: []
       }
