@@ -226,33 +226,56 @@ function ProfileTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Part
       <Section title="badges">
         <div className="space-y-2">
           {badges.map((b, i) => (
-            <div key={i} className="flex gap-2 items-center">
-              <input
-                className={inputCls + " flex-1"}
-                value={b.label}
-                onChange={(e) => {
-                  const c = [...badges]; c[i] = { ...c[i], label: e.target.value }; setBadges(c);
-                }}
-              />
-              <input
-                type="color"
-                value={b.color}
-                onChange={(e) => {
-                  const c = [...badges]; c[i] = { ...c[i], color: e.target.value }; setBadges(c);
-                }}
-                className="h-9 w-12 rounded-lg bg-transparent border border-white/10"
-              />
-              <button
-                onClick={() => setBadges(badges.filter((_, j) => j !== i))}
-                className="h-9 w-9 grid place-items-center rounded-lg border border-white/10 hover:border-destructive/50"
-                aria-label="Remover">
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
+            <div key={i} className="space-y-1.5 rounded-lg border border-white/10 p-2">
+              <div className="flex gap-2 items-center">
+                <input
+                  className={inputCls + " flex-1"}
+                  placeholder="rótulo"
+                  value={b.label}
+                  onChange={(e) => {
+                    const c = [...badges]; c[i] = { ...c[i], label: e.target.value }; setBadges(c);
+                  }}
+                />
+                <input
+                  type="color"
+                  value={b.color}
+                  onChange={(e) => {
+                    const c = [...badges]; c[i] = { ...c[i], color: e.target.value }; setBadges(c);
+                  }}
+                  className="h-9 w-12 rounded-lg bg-transparent border border-white/10"
+                />
+                <button
+                  onClick={() => setBadges(badges.filter((_, j) => j !== i))}
+                  className="h-9 w-9 grid place-items-center rounded-lg border border-white/10 hover:border-destructive/50"
+                  aria-label="Remover">
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-1">
+                {BADGE_ICON_OPTIONS.map((ic) => {
+                  const Cmp = BADGE_ICON_MAP[ic];
+                  const active = (b.icon || "sparkles") === ic;
+                  return (
+                    <button
+                      key={ic}
+                      onClick={() => { const c = [...badges]; c[i] = { ...c[i], icon: ic }; setBadges(c); }}
+                      className={`h-7 w-7 grid place-items-center rounded-md border ${
+                        active
+                          ? "border-[var(--neon-primary)] text-[var(--neon-primary)] bg-[var(--neon-primary)]/10"
+                          : "border-white/10 text-muted-foreground hover:text-foreground"
+                      }`}
+                      title={ic}
+                    >
+                      <Cmp className="h-3.5 w-3.5" />
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           ))}
           <button
             className={btnGhost}
-            onClick={() => setBadges([...badges, { label: "novo", color: "#a855f7" }])}>
+            onClick={() => setBadges([...badges, { label: "novo", color: "#a855f7", icon: "sparkles" }])}>
             <Plus className="h-3.5 w-3.5" /> novo badge
           </button>
         </div>
