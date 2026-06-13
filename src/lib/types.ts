@@ -9,7 +9,7 @@ export type Theme = {
   textAnimation: "none" | "glitch" | "shimmer" | "typewriter";
 };
 
-export type Badge = { label: string; color: string };
+export type Badge = { label: string; color: string; icon?: string };
 
 export type ProfileRow = {
   id: string;
@@ -32,21 +32,21 @@ export type ProfileRow = {
 };
 
 export type NameStyle =
-  | "brackets"   // [C][O][R][U][J][A]
-  | "neon"       // big neon glow
-  | "glitch"     // glitch RGB
-  | "mono"       // monospace lowercase
-  | "gradient"   // gradient fill
-  | "outline"    // outlined letters
-  | "minimal";   // plain bold
+  | "brackets"
+  | "neon"
+  | "glitch"
+  | "mono"
+  | "gradient"
+  | "outline"
+  | "minimal";
 
 export type EntryEffect =
   | "none"
   | "fade"
-  | "click"        // requires user click to enter
-  | "typewriter"   // types the handle then reveals
-  | "glitch"       // glitch reveal
-  | "scan";        // scan-line reveal
+  | "click"
+  | "typewriter"
+  | "glitch"
+  | "scan";
 
 export type LinkRow = {
   id: string;
@@ -61,5 +61,15 @@ export type CommentRow = {
   id: string;
   nickname: string;
   message: string;
+  created_at: string;
+  parent_id: string | null;
+  is_author: boolean;
+};
+
+export type PostRow = {
+  id: string;
+  type: "text" | "image" | "video";
+  content: string | null;
+  media_url: string | null;
   created_at: string;
 };
