@@ -7,6 +7,7 @@ import { ThemeApplier } from "@/components/bio/ThemeApplier";
 import { EntryOverlay } from "@/components/bio/EntryOverlay";
 import { AudioPlayer } from "@/components/bio/AudioPlayer";
 import { CommentsBox } from "@/components/bio/CommentsBox";
+import { PostsFeed } from "@/components/bio/PostsFeed";
 
 export default function Home() {
   const [profile, setProfile] = useState<ProfileRow | null>(null);
