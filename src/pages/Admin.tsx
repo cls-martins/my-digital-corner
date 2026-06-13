@@ -624,34 +624,222 @@ function LinkRowEdit({ link, types, onSave, onRemove }: {
 function CommentsTab({ comments, password, onChange, flash }: {
   comments: CommentRow[]; password: string; onChange: () => Promise<void>; flash: (m: string) => void;
 }) {
+  const [replyTo, setReplyTo] = useState<string | null>(null);
+  const [replyMsg, setReplyMsg] = useState("");
+  const [editId, setEditId] = useState<string | null>(null);
+  const [editMsg, setEditMsg] = useState("");
+
+  const roots = comments.filter((c) => !c.parent_id);
+  const repliesOf = (id: string) =>
+    comments.filter((c) => c.parent_id === id).sort(
+      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+
   const remove = async (id: string) => {
     if (!confirm("apagar este comentário?")) return;
     await deleteComment({ data: { password, id } });
     flash("removido");
     await onChange();
   };
+  const sendReply = async (parentId: string) => {
+    if (!replyMsg.trim()) return;
+    await replyComment({ data: { password, parent_id: parentId, nickname: "martins", message: replyMsg.trim() } });
+    setReplyTo(null); setReplyMsg(""); flash("respondido");
+    await onChange();
+  };
+  const saveEdit = async (id: string) => {
+    if (!editMsg.trim()) return;
+    await editComment({ data: { password, id, message: editMsg.trim() } });
+    setEditId(null); setEditMsg(""); flash("editado");
+    await onChange();
+  };
+
+  const renderItem = (c: CommentRow, nested = false) => (
+    <div key={c.id} className={`rounded-xl border border-white/10 bg-black/20 p-3 ${nested ? "ml-4" : ""}`}>
+      <div className="flex items-start gap-3">
+        <div className="flex-1 min-w-0">
+          <div className="text-xs font-semibold flex items-center gap-2">
+            <span className={c.is_author ? "text-[var(--neon-primary)]" : "gradient-text"}>{c.nickname}</span>
+            {c.is_author && <span className="text-[9px] uppercase tracking-wider px-1 py-0.5 rounded border border-[var(--neon-primary)]/40 text-[var(--neon-primary)]">autor</span>}
+          </div>
+          {editId === c.id ? (
+            <div className="mt-1 flex gap-1">
+              <input className={inputCls} value={editMsg} onChange={(e) => setEditMsg(e.target.value)} />
+              <button onClick={() => saveEdit(c.id)} className="h-9 w-9 grid place-items-center rounded-lg border border-white/10"><Check className="h-4 w-4" /></button>
+              <button onClick={() => setEditId(null)} className="h-9 w-9 grid place-items-center rounded-lg border border-white/10"><X className="h-4 w-4" /></button>
+            </div>
+          ) : (
+            <p className="text-sm break-words mt-0.5">{c.message}</p>
+          )}
+          <p className="text-[10px] font-mono text-muted-foreground mt-1">
+            {new Date(c.created_at).toLocaleString()}
+          </p>
+        </div>
+        <div className="flex flex-col gap-1">
+          {!nested && (
+            <button onClick={() => { setReplyTo(c.id); setReplyMsg(""); }}
+              className="h-8 w-8 grid place-items-center rounded-lg border border-white/10 hover:border-[var(--neon-primary)]/50" aria-label="Responder">
+              <Reply className="h-3.5 w-3.5" />
+            </button>
+          )}
+          {c.is_author && (
+            <button onClick={() => { setEditId(c.id); setEditMsg(c.message); }}
+              className="h-8 w-8 grid place-items-center rounded-lg border border-white/10 hover:border-[var(--neon-primary)]/50" aria-label="Editar">
+              <Pencil className="h-3.5 w-3.5" />
+            </button>
+          )}
+          <button onClick={() => remove(c.id)}
+            className="h-8 w-8 grid place-items-center rounded-lg border border-white/10 hover:border-destructive/50">
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
+      {replyTo === c.id && (
+        <div className="mt-2 flex gap-1">
+          <input className={inputCls} placeholder="responder como autor…" value={replyMsg} onChange={(e) => setReplyMsg(e.target.value)} />
+          <button onClick={() => sendReply(c.id)} className={btnPrimary}><Save className="h-3.5 w-3.5" /></button>
+        </div>
+      )}
+      {!nested && repliesOf(c.id).map((r) => renderItem(r, true))}
+    </div>
+  );
 
   return (
     <Section title="comentários públicos">
       <div className="space-y-2">
-        {comments.map((c) => (
-          <div key={c.id} className="flex items-start gap-3 rounded-xl border border-white/10 bg-black/20 p-3">
-            <div className="flex-1 min-w-0">
-              <div className="text-xs gradient-text font-semibold">{c.nickname}</div>
-              <p className="text-sm break-words">{c.message}</p>
-              <p className="text-[10px] font-mono text-muted-foreground mt-1">
-                {new Date(c.created_at).toLocaleString()}
-              </p>
-            </div>
-            <button onClick={() => remove(c.id)}
-              className="h-8 w-8 grid place-items-center rounded-lg border border-white/10 hover:border-destructive/50">
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        ))}
-        {comments.length === 0 && <p className="text-xs text-muted-foreground">sem comentários ainda.</p>}
+        {roots.map((c) => renderItem(c))}
+        {roots.length === 0 && <p className="text-xs text-muted-foreground">sem comentários ainda.</p>}
       </div>
     </Section>
+  );
+}
+
+function PostsTab({ posts, password, onChange, flash }: {
+  posts: PostRow[]; password: string; onChange: () => Promise<void>; flash: (m: string) => void;
+}) {
+  const [type, setType] = useState<"text" | "image" | "video">("text");
+  const [content, setContent] = useState("");
+  const [mediaUrl, setMediaUrl] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editContent, setEditContent] = useState("");
+  const [editMediaUrl, setEditMediaUrl] = useState<string | null>(null);
+
+  const submit = async () => {
+    setErr(null);
+    if (type === "text" && !content.trim()) return setErr("conteúdo vazio");
+    if (type !== "text" && !mediaUrl) return setErr("envie a mídia primeiro");
+    setBusy(true);
+    try {
+      await createPost({ data: { password, type, content: content || null, media_url: mediaUrl } });
+      setContent(""); setMediaUrl(null);
+      flash("post criado ✓");
+      await onChange();
+    } catch (e) {
+      setErr((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const remove = async (id: string) => {
+    if (!confirm("apagar este post?")) return;
+    await deletePost({ data: { password, id } });
+    flash("removido");
+    await onChange();
+  };
+
+  const saveEdit = async (id: string) => {
+    await updatePost({ data: { password, id, content: editContent, media_url: editMediaUrl } });
+    setEditingId(null);
+    flash("atualizado ✓");
+    await onChange();
+  };
+
+  return (
+    <div className="space-y-4">
+      <Section title="criar post">
+        <Field label="tipo">
+          <div className="flex gap-2">
+            {(["text", "image", "video"] as const).map((t) => (
+              <button key={t} onClick={() => { setType(t); setMediaUrl(null); }}
+                className={`px-3 py-1.5 text-xs rounded-lg border ${
+                  type === t
+                    ? "bg-[var(--neon-primary)]/20 border-[var(--neon-primary)]/50 text-[var(--neon-primary)]"
+                    : "border-white/10 text-muted-foreground"
+                }`}>{t}</button>
+            ))}
+          </div>
+        </Field>
+        {type !== "text" && (
+          <UploadField
+            icon={type === "image" ? <Image className="h-3.5 w-3.5" /> : <Video className="h-3.5 w-3.5" />}
+            label={type === "image" ? "imagem" : "vídeo"}
+            accept={type === "image" ? "image/*" : "video/*"}
+            currentUrl={mediaUrl}
+            password={password}
+            onUploaded={(url) => setMediaUrl(url)}
+          />
+        )}
+        <Field label="texto (opcional para mídia)">
+          <textarea rows={3} className={inputCls} value={content} onChange={(e) => setContent(e.target.value)} />
+        </Field>
+        {err && <p className="text-xs text-destructive">{err}</p>}
+        <button className={btnPrimary} disabled={busy} onClick={submit}>
+          <Plus className="h-3.5 w-3.5" /> publicar
+        </button>
+      </Section>
+
+      <Section title={`posts (${posts.length})`}>
+        <div className="space-y-2">
+          {posts.map((p) => (
+            <div key={p.id} className="rounded-xl border border-white/10 bg-black/20 p-3 space-y-2">
+              <div className="flex items-center gap-2 text-[10px] font-mono text-muted-foreground">
+                <span className="px-1.5 py-0.5 rounded border border-white/10 uppercase">{p.type}</span>
+                <span>{new Date(p.created_at).toLocaleString()}</span>
+                <div className="ml-auto flex gap-1">
+                  <button onClick={() => { setEditingId(p.id); setEditContent(p.content || ""); setEditMediaUrl(p.media_url); }}
+                    className="h-7 w-7 grid place-items-center rounded-lg border border-white/10"><Pencil className="h-3 w-3" /></button>
+                  <button onClick={() => remove(p.id)}
+                    className="h-7 w-7 grid place-items-center rounded-lg border border-white/10 hover:border-destructive/50"><Trash2 className="h-3 w-3" /></button>
+                </div>
+              </div>
+              {editingId === p.id ? (
+                <div className="space-y-2">
+                  {p.type !== "text" && (
+                    <UploadField
+                      icon={p.type === "image" ? <Image className="h-3.5 w-3.5" /> : <Video className="h-3.5 w-3.5" />}
+                      label={`substituir ${p.type}`}
+                      accept={p.type === "image" ? "image/*" : "video/*"}
+                      currentUrl={editMediaUrl}
+                      password={password}
+                      onUploaded={(url) => setEditMediaUrl(url)}
+                    />
+                  )}
+                  <textarea rows={3} className={inputCls} value={editContent} onChange={(e) => setEditContent(e.target.value)} />
+                  <div className="flex gap-2">
+                    <button onClick={() => saveEdit(p.id)} className={btnPrimary}><Save className="h-3.5 w-3.5" /> salvar</button>
+                    <button onClick={() => setEditingId(null)} className={btnGhost}>cancelar</button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {p.type === "image" && p.media_url && (
+                    <img src={p.media_url} alt="" className="w-full max-h-60 rounded-lg object-cover" />
+                  )}
+                  {p.type === "video" && p.media_url && (
+                    <video src={p.media_url} controls className="w-full max-h-60 rounded-lg" />
+                  )}
+                  {p.content && <p className="text-sm whitespace-pre-wrap break-words">{p.content}</p>}
+                </>
+              )}
+            </div>
+          ))}
+          {posts.length === 0 && <p className="text-xs text-muted-foreground">sem posts ainda.</p>}
+        </div>
+      </Section>
+    </div>
   );
 }
 
