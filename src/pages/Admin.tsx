@@ -1,12 +1,14 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import type { ProfileRow, LinkRow, CommentRow, Theme, Badge } from "@/lib/types";
+import type { ProfileRow, LinkRow, CommentRow, Theme, Badge, PostRow } from "@/lib/types";
 import {
-  adminLogin, updateProfile, upsertLink, deleteLink, deleteComment, uploadMedia,
+  adminLogin, updateProfile, upsertLink, deleteLink, deleteComment, signUploadUrl,
+  createPost, updatePost, deletePost, replyComment, editComment,
 } from "@/lib/admin-functions";
 import { ICON_OPTIONS, SocialIcon } from "@/components/bio/SocialIcon";
-import { Trash2, Plus, Save, Upload, LogOut, ArrowLeft, Image, Video, Music } from "lucide-react";
+import { BADGE_ICON_OPTIONS, BADGE_ICON_MAP } from "@/lib/badge-icons";
+import { Trash2, Plus, Save, Upload, LogOut, ArrowLeft, Image, Video, Music, Reply, Pencil, Check, X } from "lucide-react";
 
 const STORAGE_KEY = "bio_admin_pwd";
 
@@ -83,18 +85,21 @@ function AdminDashboard({ password, onLogout }: { password: string; onLogout: ()
   const [profile, setProfile] = useState<ProfileRow | null>(null);
   const [links, setLinks] = useState<LinkRow[]>([]);
   const [comments, setComments] = useState<CommentRow[]>([]);
-  const [tab, setTab] = useState<"profile" | "theme" | "media" | "links" | "comments">("profile");
+  const [posts, setPosts] = useState<PostRow[]>([]);
+  const [tab, setTab] = useState<"profile" | "theme" | "media" | "links" | "posts" | "comments">("profile");
   const [savingMsg, setSavingMsg] = useState<string | null>(null);
 
   const reload = async () => {
-    const [{ data: p }, { data: l }, { data: c }] = await Promise.all([
+    const [{ data: p }, { data: l }, { data: c }, { data: po }] = await Promise.all([
       supabase.from("profile").select("*").limit(1).single(),
       supabase.from("links").select("*").order("position", { ascending: true }),
-      supabase.from("comments").select("*").order("created_at", { ascending: false }).limit(100),
+      supabase.from("comments").select("*").order("created_at", { ascending: false }).limit(200),
+      supabase.from("posts").select("*").order("created_at", { ascending: false }).limit(100),
     ]);
     if (p) setProfile(p as unknown as ProfileRow);
     if (l) setLinks(l as LinkRow[]);
     if (c) setComments(c as CommentRow[]);
+    if (po) setPosts(po as PostRow[]);
   };
 
   useEffect(() => { reload(); }, []);
@@ -121,6 +126,7 @@ function AdminDashboard({ password, onLogout }: { password: string; onLogout: ()
     { k: "theme", label: "tema" },
     { k: "media", label: "mídia" },
     { k: "links", label: "links" },
+    { k: "posts", label: `posts (${posts.length})` },
     { k: "comments", label: `comentários (${comments.length})` },
   ];
 
@@ -159,6 +165,7 @@ function AdminDashboard({ password, onLogout }: { password: string; onLogout: ()
         {tab === "theme" && <ThemeTab profile={profile} onSave={saveProfile} />}
         {tab === "media" && <MediaTab profile={profile} password={password} onSave={saveProfile} />}
         {tab === "links" && <LinksTab links={links} password={password} onChange={reload} flash={flash} />}
+        {tab === "posts" && <PostsTab posts={posts} password={password} onChange={reload} flash={flash} />}
         {tab === "comments" && <CommentsTab comments={comments} password={password} onChange={reload} flash={flash} />}
       </main>
     </div>
