@@ -322,21 +322,6 @@ function ThemeTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Partia
 
   return (
     <div className="space-y-4">
-      <Section title="cores">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {(["primary", "secondary", "accent", "background"] as const).map((k) => (
-            <Field key={k} label={k}>
-              <div className="flex gap-2">
-                <input type="color" value={theme[k]}
-                  onChange={(e) => setTheme({ ...theme, [k]: e.target.value })}
-                  className="h-10 w-12 rounded-lg bg-transparent border border-white/10" />
-                <input value={theme[k]} onChange={(e) => setTheme({ ...theme, [k]: e.target.value })}
-                  className={inputCls + " flex-1"} />
-              </div>
-            </Field>
-          ))}
-        </div>
-      </Section>
 
       <Section title="paletas prontas (use uma pra evitar misturar cores com efeitos)">
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
