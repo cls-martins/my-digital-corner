@@ -871,6 +871,7 @@ function PostsTab({ posts, password, onChange, flash }: {
                       accept={p.type === "image" ? "image/*" : "video/*"}
                       currentUrl={editMediaUrl}
                       password={password}
+                      cropAspect={p.type === "image" ? 0 : undefined}
                       onUploaded={(url) => setEditMediaUrl(url)}
                     />
                   )}
