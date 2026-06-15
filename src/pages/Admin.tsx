@@ -8,7 +8,8 @@ import {
 } from "@/lib/admin-functions";
 import { ICON_OPTIONS, SocialIcon } from "@/components/bio/SocialIcon";
 import { BADGE_ICON_OPTIONS, BADGE_ICON_MAP } from "@/lib/badge-icons";
-import { Trash2, Plus, Save, Upload, LogOut, ArrowLeft, Image, Video, Music, Reply, Pencil, Check, X } from "lucide-react";
+import { Trash2, Plus, Save, Upload, LogOut, ArrowLeft, Image, Video, Music, Reply, Pencil, Check, X, Crop } from "lucide-react";
+import { CropDialog } from "@/components/bio/CropDialog";
 
 const STORAGE_KEY = "bio_admin_pwd";
 
@@ -291,7 +292,19 @@ function ThemeTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Partia
   const [theme, setTheme] = useState<Theme>(profile.theme);
   const [entryEffect, setEntryEffect] = useState<NonNullable<ProfileRow["entry_effect"]>>(profile.entry_effect || "fade");
   const fonts = ["Space Grotesk", "JetBrains Mono", "Orbitron", "Inter", "Bebas Neue"];
-  const anims = ["glitch", "shimmer", "none"];
+  const anims: Theme["textAnimation"][] = ["none", "glitch", "shimmer", "typewriter", "rainbow", "wave", "neon-pulse", "fire", "chromatic", "bounce", "flicker"];
+  const PALETTES: { name: string; primary: string; secondary: string; accent: string; background: string }[] = [
+    { name: "neon roxo",      primary: "#a855f7", secondary: "#06b6d4", accent: "#ec4899", background: "#070014" },
+    { name: "cyber azul",     primary: "#3b82f6", secondary: "#22d3ee", accent: "#a78bfa", background: "#020617" },
+    { name: "matrix verde",   primary: "#22c55e", secondary: "#84cc16", accent: "#10b981", background: "#04130a" },
+    { name: "sunset",         primary: "#f97316", secondary: "#ef4444", accent: "#facc15", background: "#1a0a05" },
+    { name: "rosa pastel",    primary: "#f472b6", secondary: "#f9a8d4", accent: "#c084fc", background: "#170714" },
+    { name: "vapor wave",     primary: "#ff71ce", secondary: "#01cdfe", accent: "#b967ff", background: "#0a0220" },
+    { name: "mono branco",    primary: "#e5e5e5", secondary: "#a3a3a3", accent: "#ffffff", background: "#000000" },
+    { name: "dourado",        primary: "#facc15", secondary: "#fde68a", accent: "#f59e0b", background: "#150d00" },
+    { name: "blood red",      primary: "#ef4444", secondary: "#b91c1c", accent: "#fda4af", background: "#100204" },
+    { name: "oceano",         primary: "#0ea5e9", secondary: "#14b8a6", accent: "#60a5fa", background: "#02101a" },
+  ];
   const allFx = ["bigtext", "particles", "grid", "scanlines"];
   const entries: { v: NonNullable<ProfileRow["entry_effect"]>; label: string }[] = [
     { v: "none", label: "nenhum" },
@@ -310,7 +323,26 @@ function ThemeTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Partia
 
   return (
     <div className="space-y-4">
-      <Section title="cores">
+
+      <Section title="paletas prontas (use uma pra evitar misturar cores com efeitos)">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {PALETTES.map((p) => (
+            <button key={p.name}
+              onClick={() => setTheme({ ...theme, primary: p.primary, secondary: p.secondary, accent: p.accent, background: p.background })}
+              className="rounded-lg border border-white/10 hover:border-[var(--neon-primary)]/60 p-2 text-left transition">
+              <div className="flex gap-1 mb-1">
+                <span className="h-5 flex-1 rounded" style={{ background: p.primary }} />
+                <span className="h-5 flex-1 rounded" style={{ background: p.secondary }} />
+                <span className="h-5 flex-1 rounded" style={{ background: p.accent }} />
+                <span className="h-5 flex-1 rounded border border-white/10" style={{ background: p.background }} />
+              </div>
+              <p className="text-[10px] font-mono text-muted-foreground">{p.name}</p>
+            </button>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="cores (avançado)">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {(["primary", "secondary", "accent", "background"] as const).map((k) => (
             <Field key={k} label={k}>
@@ -393,10 +425,11 @@ function MediaTab({ profile, password, onSave }: { profile: ProfileRow; password
       <Section title="avatar">
         <UploadField
           icon={<Image className="h-3.5 w-3.5" />}
-          label="imagem do avatar"
+          label="imagem do avatar (quadrado)"
           accept="image/*"
           currentUrl={profile.avatar_url}
           password={password}
+          cropAspect={1}
           onUploaded={(url) => onSave({ avatar_url: url })}
         />
       </Section>
@@ -404,10 +437,11 @@ function MediaTab({ profile, password, onSave }: { profile: ProfileRow; password
       <Section title="banner do card (topo)">
         <UploadField
           icon={<Image className="h-3.5 w-3.5" />}
-          label="imagem do banner"
+          label="imagem do banner (panorâmico)"
           accept="image/*"
           currentUrl={profile.banner_url}
           password={password}
+          cropAspect={16 / 5}
           onUploaded={(url) => onSave({ banner_url: url })}
         />
         {profile.banner_url && (
@@ -461,6 +495,7 @@ function MediaTab({ profile, password, onSave }: { profile: ProfileRow; password
           accept="image/*"
           currentUrl={profile.background_image_url}
           password={password}
+          cropAspect={0}
           onUploaded={(url) => onSave({ background_image_url: url })}
         />
         {profile.background_image_url && (
@@ -473,15 +508,17 @@ function MediaTab({ profile, password, onSave }: { profile: ProfileRow; password
   );
 }
 
-function UploadField({ icon, label, accept, currentUrl, password, onUploaded }: {
+function UploadField({ icon, label, accept, currentUrl, password, onUploaded, cropAspect }: {
   icon: React.ReactNode; label: string; accept: string;
   currentUrl: string | null | undefined; password: string;
   onUploaded: (url: string) => void;
+  cropAspect?: number; // if set & file is image, opens crop dialog. 0 = freeform
 }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [pending, setPending] = useState<File | null>(null);
 
-  const handle = async (file: File) => {
+  const doUpload = async (file: File) => {
     setErr(null);
     setBusy(true);
     try {
@@ -501,10 +538,19 @@ function UploadField({ icon, label, accept, currentUrl, password, onUploaded }: 
     }
   };
 
+  const onPick = (file: File) => {
+    if (cropAspect !== undefined && file.type.startsWith("image/")) {
+      setPending(file);
+    } else {
+      void doUpload(file);
+    }
+  };
+
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         {icon} {label}
+        {cropAspect !== undefined && <span className="ml-auto inline-flex items-center gap-1 text-[10px] text-[var(--neon-primary)]"><Crop className="h-3 w-3" /> recorte</span>}
       </div>
       {currentUrl && (
         <div className="text-[10px] font-mono text-muted-foreground truncate">
@@ -515,9 +561,21 @@ function UploadField({ icon, label, accept, currentUrl, password, onUploaded }: 
         <Upload className="h-3.5 w-3.5" />
         {busy ? "enviando…" : "selecionar arquivo"}
         <input type="file" accept={accept} className="hidden"
-          onChange={(e) => e.target.files?.[0] && handle(e.target.files[0])} />
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) onPick(f);
+            e.target.value = "";
+          }} />
       </label>
       {err && <p className="text-xs text-destructive">{err}</p>}
+      {pending && (
+        <CropDialog
+          file={pending}
+          aspect={cropAspect || 0}
+          onCancel={() => setPending(null)}
+          onDone={(f) => { setPending(null); void doUpload(f); }}
+        />
+      )}
     </div>
   );
 }
@@ -777,6 +835,7 @@ function PostsTab({ posts, password, onChange, flash }: {
             accept={type === "image" ? "image/*" : "video/*"}
             currentUrl={mediaUrl}
             password={password}
+            cropAspect={type === "image" ? 0 : undefined}
             onUploaded={(url) => setMediaUrl(url)}
           />
         )}
@@ -812,6 +871,7 @@ function PostsTab({ posts, password, onChange, flash }: {
                       accept={p.type === "image" ? "image/*" : "video/*"}
                       currentUrl={editMediaUrl}
                       password={password}
+                      cropAspect={p.type === "image" ? 0 : undefined}
                       onUploaded={(url) => setEditMediaUrl(url)}
                     />
                   )}

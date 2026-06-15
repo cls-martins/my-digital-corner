@@ -12,7 +12,13 @@ export function NameDisplay({
   animation?: Theme["textAnimation"];
 }) {
   const fxClass = animation === "none" ? "" : ` name-fx-${animation}`;
-  const fxProps = animation === "glitch" ? { "data-text": name } : {};
+  const fxProps = (animation === "glitch" || animation === "chromatic") ? { "data-text": name as string } : {};
+  const splitLetters = animation === "wave" || animation === "bounce";
+  const letters = splitLetters
+    ? Array.from(name).map((ch, i) =>
+        ch === " " ? <span key={i} style={{ display: "inline-block", width: "0.35em" }}>&nbsp;</span>
+                   : <span key={i} style={{ display: "inline-block" }}>{ch}</span>)
+    : name;
 
   if (style === "brackets") {
     return (
@@ -49,7 +55,7 @@ export function NameDisplay({
           letterSpacing: 0,
         }}
       >
-        {name}
+        {letters}
       </h2>
     );
   }
@@ -57,20 +63,20 @@ export function NameDisplay({
   if (style === "glitch") {
     return (
       <div className={`relative font-cyber text-3xl sm:text-4xl font-black uppercase leading-none text-white${fxClass}`} {...fxProps}>
-        {name}
+        {letters}
         <span
           aria-hidden
           className="absolute inset-0 animate-pulse"
           style={{ color: accent, transform: "translate(2px,-1px)", mixBlendMode: "screen" }}
         >
-          {name}
+          {letters}
         </span>
         <span
           aria-hidden
           className="absolute inset-0"
           style={{ color: "#0ff", transform: "translate(-2px,1px)", mixBlendMode: "screen", opacity: 0.6 }}
         >
-          {name}
+          {letters}
         </span>
       </div>
     );
@@ -79,7 +85,7 @@ export function NameDisplay({
   if (style === "mono") {
     return (
       <h2 className={`font-mono text-2xl sm:text-3xl font-bold lowercase tracking-tight text-white${fxClass}`} {...fxProps}>
-        {name.toLowerCase()}
+        {splitLetters ? letters : name.toLowerCase()}
         <span style={{ color: accent }}>_</span>
       </h2>
     );
@@ -94,7 +100,7 @@ export function NameDisplay({
           backgroundImage: `linear-gradient(135deg, #fff 0%, ${accent} 60%, #fff 100%)`,
         }}
       >
-        {name}
+        {letters}
       </h2>
     );
   }
@@ -109,7 +115,7 @@ export function NameDisplay({
           WebkitTextStroke: `1.5px ${accent}`,
         } as React.CSSProperties}
       >
-        {name}
+        {letters}
       </h2>
     );
   }
@@ -117,7 +123,7 @@ export function NameDisplay({
   // minimal
   return (
     <h2 className={`text-2xl sm:text-3xl font-bold text-white tracking-tight${fxClass}`} {...fxProps}>
-      {name}
+      {letters}
     </h2>
   );
 }

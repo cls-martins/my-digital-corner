@@ -6,7 +6,18 @@ export type Theme = {
   font: string;
   cursor: "default" | "glow" | "none" | "ring";
   effects: string[]; // particles, grid, scanlines, bigtext
-  textAnimation: "none" | "glitch" | "shimmer" | "typewriter";
+  textAnimation:
+    | "none"
+    | "glitch"
+    | "shimmer"
+    | "typewriter"
+    | "rainbow"
+    | "wave"
+    | "neon-pulse"
+    | "fire"
+    | "chromatic"
+    | "bounce"
+    | "flicker";
 };
 
 export type Badge = { label: string; color: string; icon?: string };
