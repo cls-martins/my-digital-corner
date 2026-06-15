@@ -495,6 +495,7 @@ function MediaTab({ profile, password, onSave }: { profile: ProfileRow; password
           accept="image/*"
           currentUrl={profile.background_image_url}
           password={password}
+          cropAspect={0}
           onUploaded={(url) => onSave({ background_image_url: url })}
         />
         {profile.background_image_url && (
