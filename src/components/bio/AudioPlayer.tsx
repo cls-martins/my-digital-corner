@@ -118,7 +118,7 @@ export function AudioPlayer({ src, title, artist }: {
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-1.5 text-xs uppercase tracking-widest text-muted-foreground">
           <Music2 className="h-3 w-3" />
-          {needsTap ? "tap play" : playing ? "now playing" : "paused"}
+          {needsTap ? "Aperte para tocar" : playing ? "Tocando" : "Pausado"}
         </div>
         <div className="text-sm font-medium truncate">{title || "Sem título"}</div>
         {artist && <div className="text-xs text-muted-foreground truncate">{artist}</div>}
