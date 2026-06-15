@@ -425,10 +425,11 @@ function MediaTab({ profile, password, onSave }: { profile: ProfileRow; password
       <Section title="avatar">
         <UploadField
           icon={<Image className="h-3.5 w-3.5" />}
-          label="imagem do avatar"
+          label="imagem do avatar (quadrado)"
           accept="image/*"
           currentUrl={profile.avatar_url}
           password={password}
+          cropAspect={1}
           onUploaded={(url) => onSave({ avatar_url: url })}
         />
       </Section>
@@ -436,10 +437,11 @@ function MediaTab({ profile, password, onSave }: { profile: ProfileRow; password
       <Section title="banner do card (topo)">
         <UploadField
           icon={<Image className="h-3.5 w-3.5" />}
-          label="imagem do banner"
+          label="imagem do banner (panorâmico)"
           accept="image/*"
           currentUrl={profile.banner_url}
           password={password}
+          cropAspect={16 / 5}
           onUploaded={(url) => onSave({ banner_url: url })}
         />
         {profile.banner_url && (
