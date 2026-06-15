@@ -15,9 +15,17 @@ export function ThemeApplier({ theme }: { theme: Theme }) {
     root.style.setProperty("--neon-primary", theme.primary);
     root.style.setProperty("--neon-secondary", theme.secondary);
     root.style.setProperty("--neon-accent", theme.accent);
+    root.style.setProperty("--background", theme.background);
+    root.style.setProperty("--primary", theme.primary);
+    root.style.setProperty("--secondary", theme.secondary);
+    root.style.setProperty("--accent", theme.accent);
     document.body.style.fontFamily = FONT_MAP[theme.font] || FONT_MAP["Space Grotesk"];
     return () => {
       document.body.style.fontFamily = "";
+      root.style.removeProperty("--background");
+      root.style.removeProperty("--primary");
+      root.style.removeProperty("--secondary");
+      root.style.removeProperty("--accent");
     };
   }, [theme]);
   return null;

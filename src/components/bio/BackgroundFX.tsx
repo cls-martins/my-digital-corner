@@ -11,7 +11,7 @@ export function BackgroundFX({ theme, imageUrl, videoUrl, bigText }: {
   const hasParticles = theme.effects?.includes("particles");
   const hasGrid = theme.effects?.includes("grid");
   const hasScanlines = theme.effects?.includes("scanlines");
-  const showBigText = theme.effects?.includes("bigtext") !== false; // default ON
+  const showBigText = theme.effects?.includes("bigtext");
 
   useEffect(() => {
     if (!hasParticles) return;
@@ -21,15 +21,22 @@ export function BackgroundFX({ theme, imageUrl, videoUrl, bigText }: {
     if (!ctx) return;
 
     let raf = 0;
-    let w = (canvas.width = window.innerWidth);
-    let h = (canvas.height = window.innerHeight);
+    let w = window.innerWidth;
+    let h = window.innerHeight;
     const onResize = () => {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = window.innerWidth;
+      h = window.innerHeight;
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      canvas.style.width = `${w}px`;
+      canvas.style.height = `${h}px`;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
+    onResize();
     window.addEventListener("resize", onResize);
 
-    const COUNT = 50;
+    const COUNT = 90;
     const particles = Array.from({ length: COUNT }, () => ({
       x: Math.random() * w,
       y: Math.random() * h,
@@ -51,6 +58,7 @@ export function BackgroundFX({ theme, imageUrl, videoUrl, bigText }: {
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
         ctx.fill();
       }
+      ctx.globalAlpha = 1;
       raf = requestAnimationFrame(tick);
     };
     tick();
@@ -61,7 +69,7 @@ export function BackgroundFX({ theme, imageUrl, videoUrl, bigText }: {
   }, [hasParticles, theme.primary]);
 
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none" aria-hidden="true">
       {/* solid bg */}
       <div className="absolute inset-0" style={{ background: theme.background || "#050505" }} />
 
@@ -102,7 +110,7 @@ export function BackgroundFX({ theme, imageUrl, videoUrl, bigText }: {
               color: theme.primary,
               opacity: 0.18,
               textShadow: `0 0 80px ${theme.primary}`,
-              letterSpacing: "-0.04em",
+              letterSpacing: 0,
               transform: "translateY(0)",
             }}
           >
