@@ -78,7 +78,7 @@ export function NameDisplay({
 
   if (style === "mono") {
     return (
-      <h2 className="font-mono text-2xl sm:text-3xl font-bold lowercase tracking-tight text-white">
+      <h2 className={`font-mono text-2xl sm:text-3xl font-bold lowercase tracking-tight text-white${fxClass}`} {...fxProps}>
         {name.toLowerCase()}
         <span style={{ color: accent }}>_</span>
       </h2>
@@ -88,7 +88,8 @@ export function NameDisplay({
   if (style === "gradient") {
     return (
       <h2
-        className="font-cyber text-3xl sm:text-4xl font-black uppercase leading-none bg-clip-text text-transparent"
+        className={`font-cyber text-3xl sm:text-4xl font-black uppercase leading-none bg-clip-text text-transparent${fxClass}`}
+        {...fxProps}
         style={{
           backgroundImage: `linear-gradient(135deg, #fff 0%, ${accent} 60%, #fff 100%)`,
         }}
@@ -101,7 +102,8 @@ export function NameDisplay({
   if (style === "outline") {
     return (
       <h2
-        className="font-cyber text-3xl sm:text-4xl font-black uppercase leading-none"
+        className={`font-cyber text-3xl sm:text-4xl font-black uppercase leading-none${fxClass}`}
+        {...fxProps}
         style={{
           color: "transparent",
           WebkitTextStroke: `1.5px ${accent}`,
@@ -114,7 +116,7 @@ export function NameDisplay({
 
   // minimal
   return (
-    <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+    <h2 className={`text-2xl sm:text-3xl font-bold text-white tracking-tight${fxClass}`} {...fxProps}>
       {name}
     </h2>
   );

@@ -203,3 +203,70 @@
   95% { transform: translate(-2px, 1px); opacity: 0.7; }
   97% { transform: translate(1px, 2px); opacity: 0.5; }
 }
+
+.name-fx-shimmer {
+  background-image: linear-gradient(110deg, #fff 0%, var(--neon-secondary) 28%, var(--neon-primary) 50%, var(--neon-accent) 72%, #fff 100%) !important;
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  animation: name-shimmer 2.4s linear infinite;
+}
+
+.name-fx-typewriter {
+  display: inline-block;
+  max-width: max-content;
+  overflow: hidden;
+  white-space: nowrap;
+  border-right: 2px solid var(--neon-primary);
+  animation: name-type 2.2s steps(18, end) infinite alternate, name-caret 0.75s step-end infinite;
+}
+
+.name-fx-glitch {
+  position: relative;
+  display: inline-block;
+  animation: name-glitch-jolt 1.8s steps(1) infinite;
+}
+
+.name-fx-glitch::before,
+.name-fx-glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.78;
+  mix-blend-mode: screen;
+}
+
+.name-fx-glitch::before {
+  color: var(--neon-secondary);
+  transform: translate(2px, -1px);
+  clip-path: inset(0 0 46% 0);
+}
+
+.name-fx-glitch::after {
+  color: var(--neon-accent);
+  transform: translate(-2px, 1px);
+  clip-path: inset(54% 0 0 0);
+}
+
+@keyframes name-shimmer {
+  from { background-position: 220% 0; }
+  to { background-position: -220% 0; }
+}
+
+@keyframes name-type {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes name-caret {
+  50% { border-color: transparent; }
+}
+
+@keyframes name-glitch-jolt {
+  0%, 88%, 100% { transform: translate(0, 0); }
+  90% { transform: translate(1px, -1px); }
+  92% { transform: translate(-2px, 1px); }
+  94% { transform: translate(2px, 0); }
+}
