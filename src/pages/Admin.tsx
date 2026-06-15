@@ -291,7 +291,19 @@ function ThemeTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Partia
   const [theme, setTheme] = useState<Theme>(profile.theme);
   const [entryEffect, setEntryEffect] = useState<NonNullable<ProfileRow["entry_effect"]>>(profile.entry_effect || "fade");
   const fonts = ["Space Grotesk", "JetBrains Mono", "Orbitron", "Inter", "Bebas Neue"];
-  const anims = ["glitch", "shimmer", "none"];
+  const anims: Theme["textAnimation"][] = ["none", "glitch", "shimmer", "typewriter", "rainbow", "wave", "neon-pulse", "fire", "chromatic", "bounce", "flicker"];
+  const PALETTES: { name: string; primary: string; secondary: string; accent: string; background: string }[] = [
+    { name: "neon roxo",      primary: "#a855f7", secondary: "#06b6d4", accent: "#ec4899", background: "#070014" },
+    { name: "cyber azul",     primary: "#3b82f6", secondary: "#22d3ee", accent: "#a78bfa", background: "#020617" },
+    { name: "matrix verde",   primary: "#22c55e", secondary: "#84cc16", accent: "#10b981", background: "#04130a" },
+    { name: "sunset",         primary: "#f97316", secondary: "#ef4444", accent: "#facc15", background: "#1a0a05" },
+    { name: "rosa pastel",    primary: "#f472b6", secondary: "#f9a8d4", accent: "#c084fc", background: "#170714" },
+    { name: "vapor wave",     primary: "#ff71ce", secondary: "#01cdfe", accent: "#b967ff", background: "#0a0220" },
+    { name: "mono branco",    primary: "#e5e5e5", secondary: "#a3a3a3", accent: "#ffffff", background: "#000000" },
+    { name: "dourado",        primary: "#facc15", secondary: "#fde68a", accent: "#f59e0b", background: "#150d00" },
+    { name: "blood red",      primary: "#ef4444", secondary: "#b91c1c", accent: "#fda4af", background: "#100204" },
+    { name: "oceano",         primary: "#0ea5e9", secondary: "#14b8a6", accent: "#60a5fa", background: "#02101a" },
+  ];
   const allFx = ["bigtext", "particles", "grid", "scanlines"];
   const entries: { v: NonNullable<ProfileRow["entry_effect"]>; label: string }[] = [
     { v: "none", label: "nenhum" },
