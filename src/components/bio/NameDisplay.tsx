@@ -12,7 +12,13 @@ export function NameDisplay({
   animation?: Theme["textAnimation"];
 }) {
   const fxClass = animation === "none" ? "" : ` name-fx-${animation}`;
-  const fxProps = animation === "glitch" ? { "data-text": name } : {};
+  const fxProps = (animation === "glitch" || animation === "chromatic") ? { "data-text": name } : {};
+  const splitLetters = animation === "wave" || animation === "bounce";
+  const letters = splitLetters
+    ? Array.from(name).map((ch, i) =>
+        ch === " " ? <span key={i} style={{ display: "inline-block", width: "0.35em" }}>&nbsp;</span>
+                   : <span key={i} style={{ display: "inline-block" }}>{ch}</span>)
+    : name;
 
   if (style === "brackets") {
     return (
