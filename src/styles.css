@@ -270,3 +270,97 @@
   92% { transform: translate(-2px, 1px); }
   94% { transform: translate(2px, 0); }
 }
+
+/* RAINBOW */
+.name-fx-rainbow {
+  background-image: linear-gradient(90deg, #ff004c, #ff7a00, #ffd400, #2bff00, #00d4ff, #4d00ff, #ff00d4, #ff004c) !important;
+  background-size: 400% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent;
+  animation: name-rainbow 4s linear infinite;
+}
+@keyframes name-rainbow {
+  from { background-position: 0% 50%; }
+  to { background-position: 400% 50%; }
+}
+
+/* WAVE — each letter bobs */
+.name-fx-wave > * {
+  display: inline-block;
+  animation: name-wave 1.6s ease-in-out infinite;
+}
+.name-fx-wave > *:nth-child(2) { animation-delay: 0.08s; }
+.name-fx-wave > *:nth-child(3) { animation-delay: 0.16s; }
+.name-fx-wave > *:nth-child(4) { animation-delay: 0.24s; }
+.name-fx-wave > *:nth-child(5) { animation-delay: 0.32s; }
+.name-fx-wave > *:nth-child(6) { animation-delay: 0.40s; }
+.name-fx-wave > *:nth-child(7) { animation-delay: 0.48s; }
+.name-fx-wave > *:nth-child(8) { animation-delay: 0.56s; }
+.name-fx-wave > *:nth-child(9) { animation-delay: 0.64s; }
+.name-fx-wave > *:nth-child(n+10) { animation-delay: 0.72s; }
+@keyframes name-wave {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* NEON PULSE */
+.name-fx-neon-pulse {
+  animation: name-neon-pulse 1.8s ease-in-out infinite;
+}
+@keyframes name-neon-pulse {
+  0%, 100% { filter: drop-shadow(0 0 4px var(--neon-primary)) drop-shadow(0 0 10px var(--neon-primary)); }
+  50% { filter: drop-shadow(0 0 12px var(--neon-primary)) drop-shadow(0 0 26px var(--neon-primary)) drop-shadow(0 0 48px var(--neon-accent)); }
+}
+
+/* FIRE */
+.name-fx-fire {
+  background-image: linear-gradient(0deg, #ff2a00 0%, #ff9100 35%, #ffd400 70%, #fff5a8 100%) !important;
+  background-size: 100% 220%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 10px #ff6a00);
+  animation: name-fire 2.2s ease-in-out infinite;
+}
+@keyframes name-fire {
+  0%, 100% { background-position: 50% 0%; }
+  50% { background-position: 50% 100%; }
+}
+
+/* CHROMATIC ABERRATION */
+.name-fx-chromatic {
+  text-shadow:
+    -2px 0 #ff0066,
+    2px 0 #00e1ff;
+  animation: name-chromatic 2.6s ease-in-out infinite;
+}
+@keyframes name-chromatic {
+  0%, 100% { text-shadow: -2px 0 #ff0066, 2px 0 #00e1ff; }
+  50% { text-shadow: -4px 0 #ff0066, 4px 0 #00e1ff; }
+}
+
+/* BOUNCE */
+.name-fx-bounce {
+  animation: name-bounce 1.4s cubic-bezier(.5,0,.5,1) infinite;
+  transform-origin: center bottom;
+}
+@keyframes name-bounce {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  30% { transform: translateY(-10px) scale(1.04, 0.96); }
+  60% { transform: translateY(0) scale(0.96, 1.04); }
+}
+
+/* FLICKER */
+.name-fx-flicker {
+  animation: name-flicker 3s linear infinite;
+}
+@keyframes name-flicker {
+  0%, 18%, 22%, 25%, 53%, 57%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 6px var(--neon-primary)) drop-shadow(0 0 18px var(--neon-primary));
+  }
+  20%, 24%, 55% { opacity: 0.4; filter: none; }
+}
