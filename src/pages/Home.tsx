@@ -69,7 +69,7 @@ export default function Home() {
         accent={profile.theme.primary}
       />
 
-      <main className="relative min-h-screen flex flex-col items-center px-4 py-8 sm:py-12">
+      <main className="relative z-10 min-h-screen flex flex-col items-center px-4 py-8 sm:py-12">
         <div className="w-full max-w-md space-y-4">
           <BioCard profile={profile} links={links} />
 

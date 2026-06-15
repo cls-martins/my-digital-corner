@@ -363,9 +363,7 @@ function ThemeTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Partia
         <Field label="ative os efeitos que quiser">
           <div className="flex flex-wrap gap-2">
             {allFx.map((fx) => {
-              const active = fx === "bigtext"
-                ? theme.effects?.includes("bigtext") !== false
-                : theme.effects?.includes(fx);
+              const active = theme.effects?.includes(fx);
               return (
                 <button key={fx} onClick={() => toggleFx(fx)}
                   className={`px-3 py-1.5 text-xs rounded-lg border transition ${

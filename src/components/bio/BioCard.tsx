@@ -79,7 +79,7 @@ export function BioCard({ profile, links }: { profile: ProfileRow; links: LinkRo
 
           {/* name + meta */}
           <div className="flex-1 min-w-0 pt-10">
-            <NameDisplay name={name} style={nameStyle} accent={accent} />
+            <NameDisplay name={name} style={nameStyle} accent={accent} animation={profile.theme.textAnimation || "none"} />
             <p className="mt-1 text-[11px] font-mono text-white/60 truncate">
               @{profile.handle}
             </p>

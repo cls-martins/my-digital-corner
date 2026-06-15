@@ -1,17 +1,22 @@
-import type { NameStyle } from "@/lib/types";
+import type { NameStyle, Theme } from "@/lib/types";
 
 export function NameDisplay({
   name,
   style,
   accent,
+  animation = "none",
 }: {
   name: string;
   style: NameStyle;
   accent: string;
+  animation?: Theme["textAnimation"];
 }) {
+  const fxClass = animation === "none" ? "" : ` name-fx-${animation}`;
+  const fxProps = animation === "glitch" ? { "data-text": name } : {};
+
   if (style === "brackets") {
     return (
-      <div className="flex flex-wrap items-center">
+      <div className={`flex flex-wrap items-center${fxClass}`} {...fxProps}>
         {Array.from(name).map((ch, i) =>
           ch === " " ? (
             <span key={i} className="inline-block w-2" />
@@ -36,11 +41,12 @@ export function NameDisplay({
   if (style === "neon") {
     return (
       <h2
-        className="font-cyber text-3xl sm:text-4xl font-black uppercase leading-none"
+        className={`font-cyber text-3xl sm:text-4xl font-black uppercase leading-none${fxClass}`}
+        {...fxProps}
         style={{
           color: "#fff",
           textShadow: `0 0 8px ${accent}, 0 0 24px ${accent}, 0 0 48px ${accent}`,
-          letterSpacing: "0.02em",
+          letterSpacing: 0,
         }}
       >
         {name}
@@ -50,7 +56,7 @@ export function NameDisplay({
 
   if (style === "glitch") {
     return (
-      <div className="relative font-cyber text-3xl sm:text-4xl font-black uppercase leading-none text-white">
+      <div className={`relative font-cyber text-3xl sm:text-4xl font-black uppercase leading-none text-white${fxClass}`} {...fxProps}>
         {name}
         <span
           aria-hidden
@@ -72,7 +78,7 @@ export function NameDisplay({
 
   if (style === "mono") {
     return (
-      <h2 className="font-mono text-2xl sm:text-3xl font-bold lowercase tracking-tight text-white">
+      <h2 className={`font-mono text-2xl sm:text-3xl font-bold lowercase tracking-tight text-white${fxClass}`} {...fxProps}>
         {name.toLowerCase()}
         <span style={{ color: accent }}>_</span>
       </h2>
@@ -82,7 +88,8 @@ export function NameDisplay({
   if (style === "gradient") {
     return (
       <h2
-        className="font-cyber text-3xl sm:text-4xl font-black uppercase leading-none bg-clip-text text-transparent"
+        className={`font-cyber text-3xl sm:text-4xl font-black uppercase leading-none bg-clip-text text-transparent${fxClass}`}
+        {...fxProps}
         style={{
           backgroundImage: `linear-gradient(135deg, #fff 0%, ${accent} 60%, #fff 100%)`,
         }}
@@ -95,7 +102,8 @@ export function NameDisplay({
   if (style === "outline") {
     return (
       <h2
-        className="font-cyber text-3xl sm:text-4xl font-black uppercase leading-none"
+        className={`font-cyber text-3xl sm:text-4xl font-black uppercase leading-none${fxClass}`}
+        {...fxProps}
         style={{
           color: "transparent",
           WebkitTextStroke: `1.5px ${accent}`,
@@ -108,7 +116,7 @@ export function NameDisplay({
 
   // minimal
   return (
-    <h2 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+    <h2 className={`text-2xl sm:text-3xl font-bold text-white tracking-tight${fxClass}`} {...fxProps}>
       {name}
     </h2>
   );
