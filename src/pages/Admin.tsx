@@ -8,7 +8,8 @@ import {
 } from "@/lib/admin-functions";
 import { ICON_OPTIONS, SocialIcon } from "@/components/bio/SocialIcon";
 import { BADGE_ICON_OPTIONS, BADGE_ICON_MAP } from "@/lib/badge-icons";
-import { Trash2, Plus, Save, Upload, LogOut, ArrowLeft, Image, Video, Music, Reply, Pencil, Check, X } from "lucide-react";
+import { Trash2, Plus, Save, Upload, LogOut, ArrowLeft, Image, Video, Music, Reply, Pencil, Check, X, Crop } from "lucide-react";
+import { CropDialog } from "@/components/bio/CropDialog";
 
 const STORAGE_KEY = "bio_admin_pwd";
 
