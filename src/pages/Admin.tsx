@@ -338,6 +338,40 @@ function ThemeTab({ profile, onSave }: { profile: ProfileRow; onSave: (p: Partia
         </div>
       </Section>
 
+      <Section title="paletas prontas (use uma pra evitar misturar cores com efeitos)">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {PALETTES.map((p) => (
+            <button key={p.name}
+              onClick={() => setTheme({ ...theme, primary: p.primary, secondary: p.secondary, accent: p.accent, background: p.background })}
+              className="rounded-lg border border-white/10 hover:border-[var(--neon-primary)]/60 p-2 text-left transition">
+              <div className="flex gap-1 mb-1">
+                <span className="h-5 flex-1 rounded" style={{ background: p.primary }} />
+                <span className="h-5 flex-1 rounded" style={{ background: p.secondary }} />
+                <span className="h-5 flex-1 rounded" style={{ background: p.accent }} />
+                <span className="h-5 flex-1 rounded border border-white/10" style={{ background: p.background }} />
+              </div>
+              <p className="text-[10px] font-mono text-muted-foreground">{p.name}</p>
+            </button>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="cores (avançado)">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {(["primary", "secondary", "accent", "background"] as const).map((k) => (
+            <Field key={k} label={k}>
+              <div className="flex gap-2">
+                <input type="color" value={theme[k]}
+                  onChange={(e) => setTheme({ ...theme, [k]: e.target.value })}
+                  className="h-10 w-12 rounded-lg bg-transparent border border-white/10" />
+                <input value={theme[k]} onChange={(e) => setTheme({ ...theme, [k]: e.target.value })}
+                  className={inputCls + " flex-1"} />
+              </div>
+            </Field>
+          ))}
+        </div>
+      </Section>
+
       <Section title="tipografia">
         <Field label="fonte premium">
           <select value={theme.font} onChange={(e) => setTheme({ ...theme, font: e.target.value })} className={inputCls}>
