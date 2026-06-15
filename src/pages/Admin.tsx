@@ -505,15 +505,17 @@ function MediaTab({ profile, password, onSave }: { profile: ProfileRow; password
   );
 }
 
-function UploadField({ icon, label, accept, currentUrl, password, onUploaded }: {
+function UploadField({ icon, label, accept, currentUrl, password, onUploaded, cropAspect }: {
   icon: React.ReactNode; label: string; accept: string;
   currentUrl: string | null | undefined; password: string;
   onUploaded: (url: string) => void;
+  cropAspect?: number; // if set & file is image, opens crop dialog. 0 = freeform
 }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
+  const [pending, setPending] = useState<File | null>(null);
 
-  const handle = async (file: File) => {
+  const doUpload = async (file: File) => {
     setErr(null);
     setBusy(true);
     try {
@@ -533,10 +535,19 @@ function UploadField({ icon, label, accept, currentUrl, password, onUploaded }: 
     }
   };
 
+  const onPick = (file: File) => {
+    if (cropAspect !== undefined && file.type.startsWith("image/")) {
+      setPending(file);
+    } else {
+      void doUpload(file);
+    }
+  };
+
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         {icon} {label}
+        {cropAspect !== undefined && <span className="ml-auto inline-flex items-center gap-1 text-[10px] text-[var(--neon-primary)]"><Crop className="h-3 w-3" /> recorte</span>}
       </div>
       {currentUrl && (
         <div className="text-[10px] font-mono text-muted-foreground truncate">
@@ -547,9 +558,21 @@ function UploadField({ icon, label, accept, currentUrl, password, onUploaded }: 
         <Upload className="h-3.5 w-3.5" />
         {busy ? "enviando…" : "selecionar arquivo"}
         <input type="file" accept={accept} className="hidden"
-          onChange={(e) => e.target.files?.[0] && handle(e.target.files[0])} />
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) onPick(f);
+            e.target.value = "";
+          }} />
       </label>
       {err && <p className="text-xs text-destructive">{err}</p>}
+      {pending && (
+        <CropDialog
+          file={pending}
+          aspect={cropAspect || 0}
+          onCancel={() => setPending(null)}
+          onDone={(f) => { setPending(null); void doUpload(f); }}
+        />
+      )}
     </div>
   );
 }
