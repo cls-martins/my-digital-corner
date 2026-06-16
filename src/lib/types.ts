@@ -75,6 +75,7 @@ export type CommentRow = {
   created_at: string;
   parent_id: string | null;
   is_author: boolean;
+  is_pinned: boolean;
 };
 
 export type PostRow = {

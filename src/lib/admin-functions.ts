@@ -38,6 +38,9 @@ export const replyComment = ({ data }: { data: { password: string; parent_id: st
 export const editComment = ({ data }: { data: { password: string; id: string; message: string } }) =>
   call<{ ok: true }>("editComment", data as unknown as Record<string, unknown>);
 
+export const setPinnedComment = ({ data }: { data: { password: string; id: string | null } }) =>
+  call<{ ok: true }>("setPinnedComment", data as unknown as Record<string, unknown>);
+
 export const createPost = ({ data }: { data: { password: string; type: string; content?: string | null; media_url?: string | null } }) =>
   call<{ ok: true }>("createPost", data as unknown as Record<string, unknown>);
 

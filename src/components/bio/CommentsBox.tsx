@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { CommentRow } from "@/lib/types";
-import { Send, MessageSquare, Reply, Pencil, Check, X, ShieldCheck } from "lucide-react";
+import { Send, MessageSquare, Reply, Pencil, Check, X, ShieldCheck, Pin } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { replyComment, editComment } from "@/lib/admin-functions";
 
@@ -58,6 +58,7 @@ export function CommentsBox() {
       }
     }
     roots.reverse();
+    roots.sort((a, b) => Number(b.is_pinned) - Number(a.is_pinned));
     return { roots, repliesByParent: map };
   }, [comments]);
 
@@ -218,6 +219,11 @@ function CommentItem({
         {c.is_author && (
           <span className="inline-flex items-center gap-0.5 text-[9px] uppercase tracking-wider px-1 py-0.5 rounded border border-[var(--neon-primary)]/40 text-[var(--neon-primary)]">
             <ShieldCheck className="h-2.5 w-2.5" /> autor
+          </span>
+        )}
+        {c.is_pinned && (
+          <span className="inline-flex items-center gap-0.5 text-[9px] uppercase tracking-wider px-1 py-0.5 rounded border border-[var(--neon-accent)]/40 text-[var(--neon-accent)]">
+            <Pin className="h-2.5 w-2.5" /> fixado
           </span>
         )}
         <span className="text-muted-foreground">{timeAgo(c.created_at)}</span>

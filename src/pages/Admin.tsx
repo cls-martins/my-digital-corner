@@ -4,11 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import type { ProfileRow, LinkRow, CommentRow, Theme, Badge, PostRow } from "@/lib/types";
 import {
   adminLogin, updateProfile, upsertLink, deleteLink, deleteComment, signUploadUrl,
-  createPost, updatePost, deletePost, replyComment, editComment,
+  createPost, updatePost, deletePost, replyComment, editComment, setPinnedComment,
 } from "@/lib/admin-functions";
 import { ICON_OPTIONS, SocialIcon } from "@/components/bio/SocialIcon";
 import { BADGE_ICON_OPTIONS, BADGE_ICON_MAP } from "@/lib/badge-icons";
-import { Trash2, Plus, Save, Upload, LogOut, ArrowLeft, Image, Video, Music, Reply, Pencil, Check, X, Crop } from "lucide-react";
+import { Trash2, Plus, Save, Upload, LogOut, ArrowLeft, Image, Video, Music, Reply, Pencil, Check, X, Crop, Pin } from "lucide-react";
 import { CropDialog } from "@/components/bio/CropDialog";
 
 const STORAGE_KEY = "bio_admin_pwd";
@@ -709,14 +709,20 @@ function CommentsTab({ comments, password, onChange, flash }: {
     setEditId(null); setEditMsg(""); flash("editado");
     await onChange();
   };
+  const togglePin = async (c: CommentRow) => {
+    await setPinnedComment({ data: { password, id: c.is_pinned ? null : c.id } });
+    flash(c.is_pinned ? "desfixado" : "fixado ✓");
+    await onChange();
+  };
 
   const renderItem = (c: CommentRow, nested = false) => (
-    <div key={c.id} className={`rounded-xl border border-white/10 bg-black/20 p-3 ${nested ? "ml-4" : ""}`}>
+    <div key={c.id} className={`rounded-xl border p-3 ${nested ? "ml-4 border-white/10 bg-black/20" : c.is_pinned ? "border-[var(--neon-accent)]/60 bg-[var(--neon-accent)]/10" : "border-white/10 bg-black/20"}`}>
       <div className="flex items-start gap-3">
         <div className="flex-1 min-w-0">
           <div className="text-xs font-semibold flex items-center gap-2">
             <span className={c.is_author ? "text-[var(--neon-primary)]" : "gradient-text"}>{c.nickname}</span>
             {c.is_author && <span className="text-[9px] uppercase tracking-wider px-1 py-0.5 rounded border border-[var(--neon-primary)]/40 text-[var(--neon-primary)]">autor</span>}
+            {c.is_pinned && <span className="text-[9px] uppercase tracking-wider px-1 py-0.5 rounded border border-[var(--neon-accent)]/40 text-[var(--neon-accent)]">fixado</span>}
           </div>
           {editId === c.id ? (
             <div className="mt-1 flex gap-1">
@@ -732,6 +738,13 @@ function CommentsTab({ comments, password, onChange, flash }: {
           </p>
         </div>
         <div className="flex flex-col gap-1">
+          {!nested && (
+            <button onClick={() => togglePin(c)}
+              className={`h-8 w-8 grid place-items-center rounded-lg border ${c.is_pinned ? "border-[var(--neon-accent)]/60 text-[var(--neon-accent)]" : "border-white/10 hover:border-[var(--neon-accent)]/50"}`}
+              aria-label={c.is_pinned ? "Desfixar" : "Fixar"}>
+              <Pin className="h-3.5 w-3.5" />
+            </button>
+          )}
           {!nested && (
             <button onClick={() => { setReplyTo(c.id); setReplyMsg(""); }}
               className="h-8 w-8 grid place-items-center rounded-lg border border-white/10 hover:border-[var(--neon-primary)]/50" aria-label="Responder">

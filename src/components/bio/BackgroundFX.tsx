@@ -68,19 +68,22 @@ export function BackgroundFX({ theme, imageUrl, videoUrl, bigText }: {
     };
   }, [hasParticles, theme.primary]);
 
+  const hasAnyFx = hasParticles || hasGrid || hasScanlines || showBigText;
+
   return (
-    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none" aria-hidden="true">
+    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none isolate" aria-hidden="true">
       {/* solid bg */}
       <div className="absolute inset-0" style={{ background: theme.background || "#050505" }} />
 
       {/* image */}
       {imageUrl && (
         <div
-          className="absolute inset-0 opacity-40"
+          className="absolute inset-0"
           style={{
             backgroundImage: `url(${imageUrl})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
+            opacity: hasAnyFx ? 0.24 : 0.46,
           }}
         />
       )}
@@ -93,7 +96,8 @@ export function BackgroundFX({ theme, imageUrl, videoUrl, bigText }: {
           muted
           loop
           playsInline
-          className="absolute inset-0 h-full w-full object-cover opacity-50"
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{ opacity: hasAnyFx ? 0.28 : 0.5 }}
         />
       )}
 
@@ -130,7 +134,7 @@ export function BackgroundFX({ theme, imageUrl, videoUrl, bigText }: {
       />
 
       {/* grid overlay */}
-      {hasGrid && <div className="absolute inset-0 grid-bg opacity-30" />}
+      {hasGrid && <div className="absolute inset-0 grid-bg opacity-60" />}
 
       {/* particles */}
       {hasParticles && (
