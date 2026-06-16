@@ -4,11 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import type { ProfileRow, LinkRow, CommentRow, Theme, Badge, PostRow } from "@/lib/types";
 import {
   adminLogin, updateProfile, upsertLink, deleteLink, deleteComment, signUploadUrl,
-  createPost, updatePost, deletePost, replyComment, editComment,
+  createPost, updatePost, deletePost, replyComment, editComment, setPinnedComment,
 } from "@/lib/admin-functions";
 import { ICON_OPTIONS, SocialIcon } from "@/components/bio/SocialIcon";
 import { BADGE_ICON_OPTIONS, BADGE_ICON_MAP } from "@/lib/badge-icons";
-import { Trash2, Plus, Save, Upload, LogOut, ArrowLeft, Image, Video, Music, Reply, Pencil, Check, X, Crop } from "lucide-react";
+import { Trash2, Plus, Save, Upload, LogOut, ArrowLeft, Image, Video, Music, Reply, Pencil, Check, X, Crop, Pin } from "lucide-react";
 import { CropDialog } from "@/components/bio/CropDialog";
 
 const STORAGE_KEY = "bio_admin_pwd";
