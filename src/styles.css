@@ -138,10 +138,11 @@
   }
   .grid-bg {
     background-image:
-      linear-gradient(color-mix(in oklab, var(--neon-primary) 12%, transparent) 1px, transparent 1px),
-      linear-gradient(90deg, color-mix(in oklab, var(--neon-primary) 12%, transparent) 1px, transparent 1px);
+      linear-gradient(color-mix(in oklab, var(--neon-primary) 28%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in oklab, var(--neon-secondary) 24%, transparent) 1px, transparent 1px);
     background-size: 50px 50px;
     animation: grid-move 20s linear infinite;
+    filter: drop-shadow(0 0 8px color-mix(in oklab, var(--neon-primary) 45%, transparent));
   }
   .scanlines::after {
     content: "";
@@ -152,10 +153,10 @@
       0deg,
       transparent 0,
       transparent 3px,
-      rgba(255, 255, 255, 0.02) 3px,
-      rgba(255, 255, 255, 0.02) 4px
+      color-mix(in oklab, var(--neon-primary) 20%, transparent) 3px,
+      color-mix(in oklab, var(--neon-primary) 20%, transparent) 4px
     );
-    mix-blend-mode: overlay;
+    mix-blend-mode: screen;
   }
   .sheen-lines {
     background-image: repeating-linear-gradient(

@@ -104,6 +104,17 @@ Deno.serve(async (req) => {
         if (error) throw new Error(error.message);
         return json({ ok: true });
       }
+      case "setPinnedComment": {
+        check(password);
+        const id = body.id ? String(body.id) : null;
+        const { error: clearError } = await supabase.from("comments").update({ is_pinned: false }).eq("is_pinned", true);
+        if (clearError) throw new Error(clearError.message);
+        if (id) {
+          const { error } = await supabase.from("comments").update({ is_pinned: true }).eq("id", id);
+          if (error) throw new Error(error.message);
+        }
+        return json({ ok: true });
+      }
       case "createPost": {
         check(password);
         const { type, content, media_url } = body;
