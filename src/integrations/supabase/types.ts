@@ -19,6 +19,7 @@ export type Database = {
           created_at: string
           id: string
           is_author: boolean
+          is_pinned: boolean
           message: string
           nickname: string
           parent_id: string | null
@@ -27,6 +28,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_author?: boolean
+          is_pinned?: boolean
           message: string
           nickname: string
           parent_id?: string | null
@@ -35,6 +37,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_author?: boolean
+          is_pinned?: boolean
           message?: string
           nickname?: string
           parent_id?: string | null
