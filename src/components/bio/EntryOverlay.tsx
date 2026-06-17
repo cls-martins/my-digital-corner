@@ -18,7 +18,7 @@ export function EntryOverlay({
 
   // Auto-hide non-click effects
   useEffect(() => {
-    if (effect === "none" || effect === "click") return;
+    if (effect === "none" || effect === "click") return null;
     const ms = effect === "typewriter" ? 1800 : effect === "scan" ? 1400 : 900;
     const t = setTimeout(() => {
       setVisible(false);
@@ -29,7 +29,7 @@ export function EntryOverlay({
 
   // Typewriter
   useEffect(() => {
-    if (effect !== "typewriter" || !visible) return;
+    if (effect !== "typewriter" || !visible) return null;
     let i = 0;
     const txt = `@${handle || "bio"}`;
     const id = setInterval(() => {
